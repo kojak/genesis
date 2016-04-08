@@ -1,4 +1,4 @@
-#!/bin/bin/env bash
+#!/usr/bin/env bash
 #
 # Copyright (C) 2016 Xenith Consulting Limited
 # Author: Salim Badakhchani <sal@redhat.com>
@@ -18,12 +18,14 @@
 #
 ########################################################################
 
+set -x
+
 # Define logfile
 LOG="Stackscript.log"
 
-echo "########################################################################" >> $LOG
-echo "Starting Provision..." >> $LOG
-echo "########################################################################\n" >> $LOG
+echo -e "########################################################################" >> $LOG
+echo -e "Starting Provision..." >> $LOG
+echo -e "########################################################################\n" >> $LOG
 
 # Non-interactive mode
 export DEBIAN_FRONTEND=noninteractive
@@ -46,7 +48,7 @@ apt-get -y install graphicsmagick > /dev/null 2>&1
 echo -e "# Installing tools..." >> $LOG
 apt-get -y install build-essential software-properties-common iotop mytop iftop mc vim wget tmux debconf-utils git curl tree auditd> /dev/null 2>&1
 
-echo -e "Installing MySQL..." >> $LOG
+echo -e "# Installing MySQL..." >> $LOG
 debconf-set-selections <<< "mysql-server mysql-server/root_password password 1234"
 debconf-set-selections <<< "mysql-server mysql-server/root_password_again password 1234"
 apt-get -y install mysql-server > /dev/null 2>&1
@@ -167,4 +169,3 @@ EOF
 
 # Send notification mail
 aureport | mail -s "New Host Notification" sbadakhc@gmail.com
-
