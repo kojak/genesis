@@ -65,7 +65,7 @@ curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin
 
 echo -e "# Download t3kit..." >> $LOG
 cd ~
-git clone https://github.com/t3kit/t3kit_vagrant.git
+git clone https://github.com/sbadakhc/t3kit_vagrant.git
 
 echo -e "# Installing libsqlite3-dev ruby1.9.1-dev..." >> $LOG
 apt-get -y install libsqlite3-dev ruby1.9.1-dev > /dev/null 2>&1
