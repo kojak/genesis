@@ -21,7 +21,7 @@
 set -x
 
 # Define logfile
-LOG="Stackscript.log"
+LOG="/root/Stackscript.log"
 
 echo -e "########################################################################" >> $LOG
 echo -e "Starting Provision..." >> $LOG
