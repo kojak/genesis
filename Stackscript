@@ -31,51 +31,50 @@ echo -e "#######################################################################
 # Non-interactive mode
 export DEBIAN_FRONTEND=noninteractive
 
-echo -e "# Updating apt-get..." >> $LOG
-apt-get update > /dev/null 2>&1
+function system_update {
+    echo -e "# Updating system..." >> $LOG
+    apt-get update > /dev/null 2>&1
+}
 
-echo -e "# Install Apache..." >> LOG
-apt-get -y install apache2 > /dev/null 2>&1
+function install_deps {
+    echo -e "# Install Apache..." >> LOG
+    apt-get -y install apache2 > /dev/null 2>&1
 
-echo -e "# Installing PHP5 + libraries..." >> $LOG
-apt-get install -y php5 libapache2-mod-php5 php5-curl php5-mysql php5-gd php5-mcrypt php5-cli> /dev/null 2>&1
+    echo -e "# Installing PHP5 + libraries..." >> $LOG
+    apt-get install -y php5 libapache2-mod-php5 php5-curl php5-mysql php5-gd php5-mcrypt php5-cli> /dev/null 2>&1
 
-echo -e "# Installing Imagemagick..." >> $LOG
-apt-get -y install imagemagick imagemagick-common > /dev/null 2>&1
+    echo -e "# Installing Imagemagick..." >> $LOG
+    apt-get -y install imagemagick imagemagick-common > /dev/null 2>&1
 
-echo -e "# Installing graphicsmagick..." >> $LOG
-apt-get -y install graphicsmagick > /dev/null 2>&1
+    echo -e "# Installing graphicsmagick..." >> $LOG
+    apt-get -y install graphicsmagick > /dev/null 2>&1
 
-echo -e "# Installing tools..." >> $LOG
-apt-get -y install build-essential software-properties-common iotop mytop iftop mc vim wget tmux debconf-utils git curl tree auditd> /dev/null 2>&1
+    echo -e "# Installing tools..." >> $LOG
+    apt-get -y install build-essential software-properties-common iotop mytop iftop mc vim wget tmux debconf-utils git curl tree auditd> /dev/null 2>&1
 
-echo -e "# Installing MySQL..." >> $LOG
-debconf-set-selections <<< "mysql-server mysql-server/root_password password 1234"
-debconf-set-selections <<< "mysql-server mysql-server/root_password_again password 1234"
-apt-get -y install mysql-server > /dev/null 2>&1
+    echo -e "# Installing MySQL..." >> $LOG
+    debconf-set-selections <<< "mysql-server mysql-server/root_password password 1234"
+    debconf-set-selections <<< "mysql-server mysql-server/root_password_again password 1234"
+    apt-get -y install mysql-server > /dev/null 2>&1
 
-echo -e "# Install mail server..." >> $LOG
-hostnamectl set-hostname locahost
-debconf-set-selections <<< "postfix postfix/mailname string localhost"
-debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
-apt-get -y install mailutils > /dev/null 2>&1
-dpkg-reconfigure debconf -f noninteractive
+    echo -e "# Install mail server..." >> $LOG
+    hostnamectl set-hostname locahost
+    debconf-set-selections <<< "postfix postfix/mailname string localhost"
+    debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
+    apt-get -y install mailutils > /dev/null 2>&1
+    dpkg-reconfigure debconf -f noninteractive
 
-echo -e "# Install Composer..." >> $LOG
-curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    echo -e "# Installing libsqlite3-dev ruby1.9.1-dev..." >> $LOG
+    apt-get -y install libsqlite3-dev ruby1.9.1-dev > /dev/null 2>&1
 
-echo -e "# Download t3kit..." >> $LOG
-cd ~
-git clone https://github.com/sbadakhc/t3kit_vagrant.git
+}
 
-echo -e "# Installing libsqlite3-dev ruby1.9.1-dev..." >> $LOG
-apt-get -y install libsqlite3-dev ruby1.9.1-dev > /dev/null 2>&1
+function install_catcher {
+    echo -e "# Install Mailcatcher as a Ruby gem..." >> $LOG
+    gem install mailcatcher > /dev/null 2>&1
 
-echo -e "# Install Mailcatcher as a Ruby gem..." >> $LOG
-gem install mailcatcher > /dev/null 2>&1
-
-echo -e "# Adding mailcatcher.conf..." >> $LOG
-cat > /etc/init/mailcatcher.conf <<'EOF'
+    echo -e "# Adding mailcatcher.conf..." >> $LOG
+    cat > /etc/init/mailcatcher.conf <<'EOF'
 description "Mailcatcher"
 
 start on runlevel [2345]
@@ -85,13 +84,14 @@ respawn
 
 exec /usr/bin/env mailcatcher --foreground --http-ip=0.0.0.0
 EOF
-echo -e "# Adding mailcatcher as php5 module.conf..." >> $LOG
-echo "sendmail_path = /usr/bin/env catchmail -f test@local.dev" | sudo tee /etc/php5/mods-available/mailcatcher.ini
-php5enmod mailcatcher  > /dev/null 2>&1
+    echo -e "# Adding mailcatcher as php5 module.conf..." >> $LOG
+    echo "sendmail_path = /usr/bin/env catchmail -f test@local.dev" | sudo tee /etc/php5/mods-available/mailcatcher.ini
+    php5enmod mailcatcher  > /dev/null 2>&1
+}
 
-echo -e "# Change default vhost..." >> $LOG
-# Set up vhost
-cat > /etc/apache2/sites-available/000-default.conf <<'EOF'
+function config_vhost {
+    echo -e "# Change default vhost..." >> $LOG
+    cat > /etc/apache2/sites-available/000-default.conf <<'EOF'
 <VirtualHost *:80>
     ServerName localhost
     ServerAdmin webmaster@localhost
@@ -108,10 +108,11 @@ cat > /etc/apache2/sites-available/000-default.conf <<'EOF'
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 EOF
+}
 
-echo -e "# Adding php settings..." >> $LOG
-# PHP.ini additional settings
-cat > /etc/php5/apache2/conf.d/30-pixelant.ini <<'EOF'
+function config_php {
+    echo -e "# Adding php settings..." >> $LOG
+    cat > /etc/php5/apache2/conf.d/30-pixelant.ini <<'EOF'
 memory_limit = 384M
 max_execution_time=240
 upload_max_filesize=200M
@@ -129,26 +130,32 @@ opcache.memory_consumption=192
 opcache.interned_strings_buffer=16
 opcache.fast_shutdown=1
 EOF
+}
 
 apt-get clean > /dev/null 2>&1
 
-echo -e "# Adding some locales..." >> $LOG
-locale-gen en_AU.utf8 > /dev/null 2>&1
-locale-gen en_DK.utf8 > /dev/null 2>&1
-locale-gen en_GB.utf8 > /dev/null 2>&1
-locale-gen en_HK.utf8 > /dev/null 2>&1
-locale-gen en_IE.utf8 > /dev/null 2>&1
-locale-gen en_US.utf8 > /dev/null 2>&1
-locale-gen sv_SE.utf8 > /dev/null 2>&1
-locale-gen uk_UA.utf8 > /dev/null 2>&1
+function  config_locale {
+	echo -e "# Adding some locales..." >> $LOG
+	locale-gen en_AU.utf8 > /dev/null 2>&1
+	locale-gen en_DK.utf8 > /dev/null 2>&1
+	locale-gen en_GB.utf8 > /dev/null 2>&1
+	locale-gen en_HK.utf8 > /dev/null 2>&1
+	locale-gen en_IE.utf8 > /dev/null 2>&1
+	locale-gen en_US.utf8 > /dev/null 2>&1
+	locale-gen sv_SE.utf8 > /dev/null 2>&1
+	locale-gen uk_UA.utf8 > /dev/null 2>&1
+}
 
-# enable mod rewrite
-a2enmod rewrite > /dev/null 2>&1
-# enable mod expires
-a2enmod expires > /dev/null 2>&1
+function confi_mods {
+    echo -e "# Enable mod rewrite" >> $LOG
+    a2enmod rewrite > /dev/null 2>&1
+    echo -e "# Enable mod expires" >> $LOG
+    a2enmod expires > /dev/null 2>&1
+}
 
-echo -e "# Adding mysql settings..." >> $LOG
-cat > /etc/mysql/conf.d/pixelant.cnf <<'EOF'
+function  config_mysql {
+    echo -e "# Adding mysql settings..." >> $LOG
+    cat > /etc/mysql/conf.d/pixelant.cnf <<'EOF'
 [mysqld]
 key_buffer = 64M
 sort_buffer = 1M
@@ -167,6 +174,22 @@ skip-name-resolve=ON
 #skip_networking=ON
 bulk_insert_buffer_size=32M
 EOF
+}
 
-# Send notification mail
-aureport | mail -s "New Host Notification" sbadakhc@gmail.com
+function  install_t3kit {
+    echo -e "# Install Composer..." >> $LOG
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+    echo -e "# Download t3kit..." >> $LOG
+    cd ~
+    git clone https://github.com/sbadakhc/t3kit_vagrant.git
+}
+
+function  cleanup {
+    apt-get clean > /dev/null 2>&1
+}
+
+function send_notification {
+    echo -e "# Send notification mail" >> $LOG
+    aureport | mail -s "New Host Notification" sbadakhc@gmail.com
+}
