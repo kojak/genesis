@@ -31,6 +31,7 @@ echo -e "#######################################################################
 # Non-interactive mode
 export DEBIAN_FRONTEND=noninteractive
 
+# Execution statements logicaly grouped into functions.
 function system_update {
     echo -e "# Updating system..." >> $LOG
     apt-get update > /dev/null 2>&1
@@ -146,7 +147,7 @@ function  config_locale {
 	locale-gen uk_UA.utf8 > /dev/null 2>&1
 }
 
-function confi_mods {
+function config_mods {
     echo -e "# Enable mod rewrite" >> $LOG
     a2enmod rewrite > /dev/null 2>&1
     echo -e "# Enable mod expires" >> $LOG
@@ -193,3 +194,17 @@ function send_notification {
     echo -e "# Send notification mail" >> $LOG
     aureport | mail -s "New Host Notification" sbadakhc@gmail.com
 }
+
+# Execute functions 
+system_update
+install_deps
+install_catcher
+config_vhost
+config_php
+config_locale
+config_mods
+config_mysql
+install_t3kit
+cleanup
+send_notification
+ 
