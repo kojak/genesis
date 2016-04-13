@@ -218,4 +218,6 @@ config_user
 install_t3kit
 cleanup
 send_notification
- 
+
+# Reboot the system
+reboot 
