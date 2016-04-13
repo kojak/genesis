@@ -28,6 +28,7 @@ echo -e "#######################################################################
 echo -e "Installing System..." >> $LOG
 echo -e "########################################################################\n" >> $LOG
 echo -e $(date) >> $LOG
+echo >> $LOG
 
 # Non-interactive mode
 export DEBIAN_FRONTEND=noninteractive
@@ -200,7 +201,7 @@ function cleanup {
 }
 
 function send_notification {
-    echo -e "# Installtion completed. Sending notification mail" >> $LOG
+    echo -e "# Installation completed. Sending notification mail" >> $LOG
     aureport | mail -s "New Host Notification" sbadakhc@gmail.com
 }
 
