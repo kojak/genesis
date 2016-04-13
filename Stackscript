@@ -164,7 +164,6 @@ sort_buffer = 1M
 join_buffer = 12M
 max_allowed_packet = 8M
 max_heap_table_size = 320M
-table_cache = 3096
 thread_cache_size = 4
 query_cache_limit = 512M
 query_cache_size = 128M
