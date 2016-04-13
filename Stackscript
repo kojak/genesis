@@ -27,6 +27,7 @@ LOG="/root/Stackscript.log"
 echo -e "########################################################################" >> $LOG
 echo -e "Starting Provision..." >> $LOG
 echo -e "########################################################################\n" >> $LOG
+echo -e $(date) >> $LOG
 
 # Non-interactive mode
 export DEBIAN_FRONTEND=noninteractive
@@ -154,7 +155,7 @@ function config_mods {
     a2enmod expires > /dev/null 2>&1
 }
 
-function  config_mysql {
+function config_mysql {
     echo -e "# Adding mysql settings..." >> $LOG
     cat > /etc/mysql/conf.d/pixelant.cnf <<'EOF'
 [mysqld]
@@ -177,16 +178,24 @@ bulk_insert_buffer_size=32M
 EOF
 }
 
-function  install_t3kit {
+function config_user {
+    useradd admin -m -s /bin/bash -G www-data
+    chown -R admin:www-data /var/www/shared/
+    passwd admin:admin
+}
+
+function install_t3kit {
     echo -e "# Install Composer..." >> $LOG
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
     echo -e "# Download t3kit..." >> $LOG
-    cd ~
+    mkdir -p /var/www/shared/
+    cd /var/www/shared/
     git clone https://github.com/sbadakhc/t3kit_vagrant.git
+    chown -R admin:www-data /var/www/shared/
 }
 
-function  cleanup {
+function cleanup {
     apt-get clean > /dev/null 2>&1
 }
 
