@@ -201,7 +201,7 @@ function cleanup {
 }
 
 function send_notification {
-    echo -e "# Send notification mail" >> $LOG
+    echo -e "# Provioning completed. Sending notification mail" >> $LOG
     aureport | mail -s "New Host Notification" sbadakhc@gmail.com
 }
 
