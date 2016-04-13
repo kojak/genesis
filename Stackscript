@@ -25,7 +25,7 @@ set -x
 LOG="/root/Stackscript.log"
 
 echo -e "########################################################################" >> $LOG
-echo -e "Provisioning System..." >> $LOG
+echo -e "Installing System..." >> $LOG
 echo -e "########################################################################\n" >> $LOG
 echo -e $(date) >> $LOG
 
@@ -201,7 +201,7 @@ function cleanup {
 }
 
 function send_notification {
-    echo -e "# Provioning completed. Sending notification mail" >> $LOG
+    echo -e "# Installtion completed. Sending notification mail" >> $LOG
     aureport | mail -s "New Host Notification" sbadakhc@gmail.com
 }
 
