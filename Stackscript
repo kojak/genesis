@@ -60,7 +60,7 @@ function install_deps {
     apt-get -y install mysql-server > /dev/null 2>&1
 
     echo -e "# Install mail server..." >> $LOG
-    hostnamectl set-hostname locahost
+    hostnamectl set-hostname localhost
     debconf-set-selections <<< "postfix postfix/mailname string localhost"
     debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
     apt-get -y install mailutils > /dev/null 2>&1
