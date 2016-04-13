@@ -22,7 +22,7 @@
 set -x
 
 # Define logfile
-LOG="/root/Stackscript.log"
+LOG="/root/install.log"
 
 echo -e "########################################################################" >> $LOG
 echo -e "Installing System..." >> $LOG
