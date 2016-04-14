@@ -181,6 +181,7 @@ EOF
 function config_user {
     echo -e "# Creating admin user..." >> $LOG
     useradd admin -m -s /bin/bash -G www-data
+    su -c "ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N "1234567890"" admin
     mkdir -p /var/www/shared/
     chown -R admin:www-data /var/www/shared/
 }
