@@ -53,7 +53,7 @@ function install_deps {
     apt-get -y install graphicsmagick > /dev/null 2>&1
 
     echo -e "# Installing tools..." >> $LOG
-    apt-get -y install build-essential software-properties-common iotop mytop iftop mc vim wget tmux debconf-utils git curl tree auditd> /dev/null 2>&1
+    apt-get -y install build-essential software-properties-common iotop mytop iftop htop mc vim wget tmux debconf-utils git curl tree auditd> /dev/null 2>&1
 
     echo -e "# Installing MySQL..." >> $LOG
     debconf-set-selections <<< "mysql-server mysql-server/root_password password 1234"
