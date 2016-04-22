@@ -230,7 +230,7 @@ chown -R admin:www-data /var/www/shared
 chmod 775 /var/www/shared/site/
 chmod 775 /var/www/shared/site/typo3conf/PackageStates.php
 EOF
-chmod +x t3kit
+chmod +x t3kit.sh
 }
 
 function cleanup {
