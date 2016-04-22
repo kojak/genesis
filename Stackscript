@@ -199,10 +199,28 @@ mkdir -p /var/www/shared/db
 mkdir -p /var/www/shared/site
 cd /var/www/shared/db
 git clone https://github.com/t3kit/t3kit_db.git .
-
 cd /var/www/shared/site
-git clone https://github.com/t3kit/t3kit.git .
-git submodule update --init --recursive
+#git clone https://github.com/t3kit/t3kit.git .
+#git submodule update --init --recursive
+
+REPOS="https://git.typo3.org/Packages/TYPO3.CMS.git \
+https://github.com/t3kit/t3kit_extension_tools.git \
+https://github.com/kaystrobach/TYPO3.dyncss.git \
+https://github.com/kaystrobach/TYPO3.dyncss_less.git \
+https://github.com/kaystrobach/TYPO3.yaml_parser.git \
+https://github.com/typo3-themes/themes.git \
+https://git.typo3.org/TYPO3CMS/Extensions/static_info_tables.git \
+https://git.typo3.org/TYPO3CMS/Extensions/news.git \
+https://github.com/t3kit/theme_t3kit.git \
+https://bitbucket.org/pixelant/pxa_newsletter_subscription.git \
+https://git.typo3.org/TYPO3CMS/Extensions/realurl.git \
+https://github.com/mhirdes/go_maps_ext.git \
+https://github.com/TYPO3-extensions/gridelements.git \
+https://github.com/TYPO3-Solr/ext-solr.git \
+https://github.com/pixelant/t3ext-seo_basics.git \
+https://github.com/pixelant/realurl_404_multilingual.git"
+
+REPOS=$(cat repos); for repo in $REPOS; do git clone $repo; done
 
 cd TYPO3.CMS
 composer install
