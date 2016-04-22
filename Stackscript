@@ -225,7 +225,8 @@ https://github.com/pixelant/realurl_404_multilingual.git"
 for repo in $REPOS; do git clone $repo; done
 
 cd TYPO3.CMS
-composer install
+composer install --ignore-platform-reqs
+composer update --ignore-platform-reqs
 chown -R admin:www-data /var/www/shared
 chmod 775 /var/www/shared/site/
 chmod 775 /var/www/shared/site/typo3conf/PackageStates.php
