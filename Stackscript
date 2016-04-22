@@ -186,40 +186,31 @@ function config_user {
 
 function install_t3kit {
     echo -e "# Install Composer..." >> $LOG
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    cat > /t3kit.sh <<'EOF'
+#!/usr/bin/env bash
 
-    echo -e "# Download t3kit..." >> $LOG
-    mkdir -p /var/www/shared
-	cd /var/www/shared
+# Switch on debugging
+set -x
 
-	if [ ! -d "db" ]; then
-		mkdir db
-	fi
+curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-	cd db
+echo -e "# Download t3kit..." >> $LOG
+mkdir -p /var/www/shared
+mkdir -p /var/www/shared/db
+mkdir -p /var/www/shared/site
+cd /var/www/shared/db
+git clone https://github.com/t3kit/t3kit_db.git .
 
-	if [ ! -d .git ]; then
-		git clone https://github.com/t3kit/t3kit_db.git .
-	fi;
+cd /var/www/shared/site
+git clone https://github.com/t3kit/t3kit.git .
+git submodule update --init --recursive
 
-	cd ..
-
-	if [ ! -d "site" ]; then
-		mkdir site
-	fi
-
-	cd site
-
-	if [ ! -d .git ]; then
-		git clone https://github.com/t3kit/t3kit.git .
-		git submodule update --init --recursive
-	fi;
-
-	cd TYPO3.CMS
-	composer install
-	chown -R admin:www-data /var/www/shared
-	chmod 775 /var/www/shared/site/
-	chmod 775 /var/www/shared/site/typo3conf/PackageStates.php
+cd TYPO3.CMS
+composer install
+chown -R admin:www-data /var/www/shared
+chmod 775 /var/www/shared/site/
+chmod 775 /var/www/shared/site/typo3conf/PackageStates.php
+EOF
 }
 
 function cleanup {
