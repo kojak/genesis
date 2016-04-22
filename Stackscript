@@ -213,13 +213,14 @@ EOF
 }
 
 function cleanup {
+    echo -e "# Cleaning up" >> $LOG
     apt-get clean > /dev/null 2>&1
 }
 
 function send_notification {
-    echo -e "# Installation completed. Sending notification mail" >> $LOG
+    echo -e "# Installation completed. System Rebooted" >> $LOG
     aureport | mail -s "New Host Notification" sbadakhc@gmail.com
-    reboot
+    reboot 
 }
 
 # Execute functions 
@@ -235,3 +236,4 @@ config_user
 install_t3kit
 cleanup
 send_notification
+
