@@ -44,7 +44,7 @@ function install_deps {
     apt-get -y install apache2 > /dev/null 2>&1
 
     echo -e "# Installing PHP5 + libraries..." >> $LOG
-    apt-get install -y php5 libapache2-mod-php5 php5-curl php5-mysql php5-gd php5-mcrypt php5-cli> /dev/null 2>&1
+    apt-get install -y php7 libapache2-mod-php7 php7-curl php7-mysql php7-gd php7-mcrypt php7-cli> /dev/null 2>&1
 
     echo -e "# Installing Imagemagick..." >> $LOG
     apt-get -y install imagemagick imagemagick-common > /dev/null 2>&1
@@ -87,9 +87,9 @@ respawn
 
 exec /usr/bin/env mailcatcher --foreground --http-ip=0.0.0.0
 EOF
-    echo -e "# Adding mailcatcher as php5 module.conf..." >> $LOG
-    echo "sendmail_path = /usr/bin/env catchmail -f test@local.dev" | sudo tee /etc/php5/mods-available/mailcatcher.ini
-    php5enmod mailcatcher  > /dev/null 2>&1
+    echo -e "# Adding mailcatcher as php7 module.conf..." >> $LOG
+    echo "sendmail_path = /usr/bin/env catchmail -f test@local.dev" | sudo tee /etc/php7/mods-available/mailcatcher.ini
+    php7enmod mailcatcher  > /dev/null 2>&1
 }
 
 function config_vhost {
@@ -115,7 +115,7 @@ EOF
 
 function config_php {
     echo -e "# Adding php settings..." >> $LOG
-    cat > /etc/php5/apache2/conf.d/30-pixelant.ini <<'EOF'
+    cat > /etc/php7/apache2/conf.d/30-pixelant.ini <<'EOF'
 memory_limit = 384M
 max_execution_time=240
 upload_max_filesize=200M
@@ -186,7 +186,7 @@ function config_user {
 
 function install_t3kit {
     echo -e "# Creating composer script..." >> $LOG
-    cat > t3kit.sh <<'EOF'
+    cat > /root/t3kit.sh <<'EOF'
 #!/usr/bin/env bash
 
 # Switch on debugging
@@ -194,7 +194,6 @@ set -x
 
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-mkdir -p /var/www/shared
 mkdir -p /var/www/shared/db
 mkdir -p /var/www/shared/site
 cd /var/www/shared/db
@@ -225,13 +224,13 @@ https://github.com/pixelant/realurl_404_multilingual.git"
 for repo in $REPOS; do git clone $repo; done
 
 cd TYPO3.CMS
-composer install --ignore-platform-reqs
-composer update --ignore-platform-reqs
+composer install
+composer update
 chown -R admin:www-data /var/www/shared
 chmod 775 /var/www/shared/site/
 chmod 775 /var/www/shared/site/typo3conf/PackageStates.php
 EOF
-chmod +x t3kit.sh
+chmod +x /root/t3kit.sh
 }
 
 function cleanup {
