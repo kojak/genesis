@@ -202,7 +202,6 @@ git clone https://github.com/t3kit/t3kit_db.git .
 cd /var/www/shared/
 scp -r 139.162.181.50:~/site.tar.gz .
 tar zxfv site.tar.gz
-chown -R admin:www-data /var/www/shared
 cd /var/www/shared/site/TYPO3.CMS
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 su -c "composer install" admin
@@ -235,6 +234,8 @@ fi;
 
 systemctl restart mysql.service && systemctl restart apache2.service
 
+chown -R admin:www-data /var/www/shared
+find /var/www/shared -type d -exec chmod 775 {} +
 EOF
 chmod +x /root/t3kit.sh
 }
