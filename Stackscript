@@ -200,7 +200,7 @@ mkdir -p /var/www/shared/db
 cd /var/www/shared/db
 git clone https://github.com/t3kit/t3kit_db.git .
 cd /var/www/shared/
-scp -r 139.162.181.50:~/site.tar.gz .
+curl -o site.tar.gz ftp://139.162.181.50/site.tar.gz
 tar zxfv site.tar.gz
 cd /var/www/shared/site/TYPO3.CMS
 chown -R admin:www-data /var/www/shared
