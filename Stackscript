@@ -185,43 +185,43 @@ function config_user {
 }
 
 function install_t3kit {
-	echo -e "# Creating composer script..." >> $LOG
-	curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-	mkdir -p /var/www/shared/db
-	cd /var/www/shared/db
-	git clone https://github.com/t3kit/t3kit_db.git .
-	cd /var/www/shared/
-	scp -r 139.162.181.50:~/site.tar.gz .
-	tar zxfv site.tar.gz
-	chown -R admin:www-data /var/www/shared
-	cd /var/www/shared/site/TYPO3.CMS
-	su -c "composer install" admin
-	su -c "composer update" admin
+    echo -e "# Creating composer script..." >> $LOG
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    mkdir -p /var/www/shared/db
+    cd /var/www/shared/db
+    git clone https://github.com/t3kit/t3kit_db.git .
+    cd /var/www/shared/
+    scp -r 139.162.181.50:~/site.tar.gz .
+    tar zxfv site.tar.gz
+    chown -R admin:www-data /var/www/shared
+    cd /var/www/shared/site/TYPO3.CMS
+    su -c "composer install" admin
+    su -c "composer update" admin
 
-	echo -e "# Create MySQL DB for TYPO3..." >> $LOG
-	PASSWORD="t3kit1234"
-	DATABASE="t3kit"
-	USERNAME="t3kit"
-	mysql -uroot -p1234 -e "CREATE DATABASE IF NOT EXISTS $DATABASE CHARACTER SET utf8 COLLATE utf8_swedish_ci;"
-	mysql -uroot -p1234 -e "GRANT ALL PRIVILEGES ON $DATABASE.* TO '$USERNAME'@localhost IDENTIFIED BY '$PASSWORD';"
-	mysql -uroot -p1234 $DATABASE < /var/www/shared/db/$DATABASE.sql
+    echo -e "# Create MySQL DB for TYPO3..." >> $LOG
+    PASSWORD="t3kit1234"
+    DATABASE="t3kit"
+    USERNAME="t3kit"
+    mysql -uroot -p1234 -e "CREATE DATABASE IF NOT EXISTS $DATABASE CHARACTER SET utf8 COLLATE utf8_swedish_ci;"
+    mysql -uroot -p1234 -e "GRANT ALL PRIVILEGES ON $DATABASE.* TO '$USERNAME'@localhost IDENTIFIED BY '$PASSWORD';"
+    mysql -uroot -p1234 $DATABASE < /var/www/shared/db/$DATABASE.sql
 
     echo -e "# Checking symlinks..." >> $LOG
-	cd /var/www/shared/site
-	if [ ! -L typo3_src ]; then
-		rm typo3_src/ -rf
-		rm typo3_src -rf
-		ln -s TYPO3.CMS typo3_src
-	fi;
-	if [ ! -L index.php ]; then
-		rm index.php
-		ln -s typo3_src/index.php index.php
-	fi;
-	if [ ! -L typo3 ]; then
-		rm typo3/ -rf
-		rm typo3 -rf
-		ln -s typo3_src/typo3 typo3
-	fi;
+    cd /var/www/shared/site
+    if [ ! -L typo3_src ]; then
+        rm typo3_src/ -rf
+        rm typo3_src -rf
+        ln -s TYPO3.CMS typo3_src
+    fi;
+    if [ ! -L index.php ]; then
+        rm index.php
+        ln -s typo3_src/index.php index.php
+    fi;
+    if [ ! -L typo3 ]; then
+        rm typo3/ -rf
+        rm typo3 -rf
+        ln -s typo3_src/typo3 typo3
+    fi;
 }
 
 function cleanup {
