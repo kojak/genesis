@@ -233,8 +233,8 @@ if [ ! -L typo3 ]; then
 	ln -s typo3_src/typo3 typo3
 fi;
 
-systemctl restart mysql.service && systemctl restart apache2.service
 find /var/www/shared -type d -exec chmod 775 {} +
+systemctl restart mysql.service && systemctl restart apache2.service
 EOF
 chmod +x /root/t3kit.sh
 }
