@@ -10,6 +10,6 @@ Checkout the contents of the Genesis git repository to a suitable directory on y
 ```
 [root@localhost]# cd ~/workspace
 [root@localhost]# git clone https://github.com/sbadakhc/geneis.git
-[root@localhost]# cd genesis
-[root@localhost]# ./Stackscript
+[root@localhost]# cd genesis/Stackscripts
+[root@localhost]# ./wapsrv
 ```
