@@ -203,6 +203,7 @@ cd /var/www/shared/
 scp -r 139.162.181.50:~/site.tar.gz .
 tar zxfv site.tar.gz
 cd /var/www/shared/site/TYPO3.CMS
+chown -R admin:www-data /var/www/shared
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 su -c "composer install" admin
 su -c "composer update" admin
@@ -233,8 +234,6 @@ if [ ! -L typo3 ]; then
 fi;
 
 systemctl restart mysql.service && systemctl restart apache2.service
-
-chown -R admin:www-data /var/www/shared
 find /var/www/shared -type d -exec chmod 775 {} +
 EOF
 chmod +x /root/t3kit.sh
