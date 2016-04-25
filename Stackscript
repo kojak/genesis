@@ -192,6 +192,9 @@ function install_t3kit {
 # Switch on Debugging
 set -x
 
+# Define logfile
+LOG="/root/install.log"
+
 echo -e "# Downloading TYPO3..." >> $LOG
 mkdir -p /var/www/shared/db
 cd /var/www/shared/db
