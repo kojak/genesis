@@ -38,7 +38,11 @@ echo >> $LOG
 function system_update {
     echo -e "# Updating system..." >> $LOG
     yum -y update > /dev/null 2>&1
-    yum -y install git > /dev/null 2>&1
+}
+
+function install_deps {
+    echo -e "# Installing tools..." >> $LOG
+    yum -y install iftop htop wget git curl tree bind bind-utils > /dev/null 2>&1
 }
 
 install_docker () {
