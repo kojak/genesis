@@ -42,7 +42,8 @@ function system_update {
 
 function install_packages {
     echo -e "# Installing packages..." >> $LOG
-    yum -y install iftop htop wget git curl tree bind bind-utils > /dev/null 2>&1
+    rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+    yum -y install docker git wget unzip net-tools bind bind-utils patch mlocate maven htop iftop curl tree
 }
 
 install_docker () {
