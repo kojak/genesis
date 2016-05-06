@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#
+# Copyright (C) 2016 Xenith Consulting Limited
+# Author: Salim Badakhchani <salimb@xenithconsulting.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+########################################################################
+
+# Switch on Debugging
+set -x
+
+# Define logfile
+LOG="/root/install.log"
+
+echo -e "########################################################################" >> $LOG
+echo -e "Installing System..." >> $LOG
+echo -e "########################################################################\n" >> $LOG
+echo -e $(date) >> $LOG
+echo >> $LOG
+
+# Execution statements logicaly grouped into functions.
+
+function system_update {
+    echo -e "# Updating system..." >> $LOG
+    yum -y update > /dev/null 2>&1
+    yum -y install git > /dev/null 2>&1
+}
+
+
+function install_autom8 {
+    echo -e "# Updating system..." >> $LOG
+    mkdir workspace
+    cd workspace
+    git clone https://github.com/kojak/autom8.git
+    cd autom8
+    ./kojak
+}
+
+system_update
+install_autom8
+
