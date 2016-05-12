@@ -35,7 +35,7 @@ echo >> $LOG
 
 # Execution statements logicaly grouped into functions.
 
-function system_update {
+function update_system {
     echo -e "# Updating system..." >> $LOG
     yum -y update > /dev/null 2>&1
 }
@@ -267,9 +267,7 @@ install_fabric8 () {
     /opt/gofabric8/gofabric8 deploy --namespace="default" --domain example.com --yes 
     /opt/gofabric8/gofabric8 secrets --yes
 
-    echo -e "# Configure namespace" >> $LOG
-    oc get oauthclient fabric8
-    oc process -v DOMAIN=example.com -f /opt/fabric8/main/console-2.2.153.json | oc create -f -
+    echo -e "# Validate installaiton" >> $LOG
     /opt/gofabric8/gofabric8 validate --namespace="default"
 }
 
