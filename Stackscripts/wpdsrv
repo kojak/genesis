@@ -48,7 +48,7 @@ install_deps () {
     systemctl enable mariadb.service
    
     echo -e "# Creating dadatbases..." >> $LOG
-    mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'WdbAdm00'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'WdbAdm00'; FLUSH PRIVILEGES; exit"
+    mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'WpAdm00'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'WpAdm00'; FLUSH PRIVILEGES; exit"
 
     echo -e "# Securing MySql..." >> $LOG 
     echo -e "\n\nMySqlAdm00\nMySqlAdm00\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
@@ -67,7 +67,7 @@ install_wordpress () {
     mkdir -p  /var/www/html/wp-content/uploads
     sudo chown -R apache:apache /var/www/html/*
 
-    echo -e "Patching PHP..." >> $LOG 
+    echo -e "# Patching PHP..." >> $LOG 
     cp -p /etc/php.ini /etc/php.ini.orig
     cat > /tmp/php.ini.patch << 'EOF'
 --- /etc/php.ini    2016-05-12 13:49:38.000000000 +0000
@@ -86,7 +86,7 @@ EOF
 (cd / && patch -p0) < /tmp/php.ini.patch
 rm -f /tmp/php.ini.patch
 
-    echo -e "Patching Wordpress..." >> $LOG        
+    echo -e "# Patching Wordpress..." >> $LOG        
         cp /root/wordpress/wp-config-sample.php /root/wordpress/wp-config.php
         cat > /tmp/wp-config.php.patch << 'EOF'
 --- /root/wordpress/wp-config.php    2015-12-16 09:58:26.000000000 +0000
@@ -116,7 +116,7 @@ systemctl restart httpd.service
 
 post_install () {
 
-    echo -e "Running post install..." >> $LOG
+    echo -e "# Running post install..." >> $LOG
     updatedb
 }
 
