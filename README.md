@@ -1,6 +1,6 @@
 Genesis 
 =======
-The genesis project is a set of Stackscripts, wriiten in BASH, used to automate the provisioning and deployment of the Pixelant t3kit for cloud deployment.  The scripts assume a vanilla installation the Ubuntu Linux distribution and are optimised for that environment.  The minmum configuration consists of a deployment server and a web application server. 
+The genesis project is a set of Stackscripts, wriiten in BASH, used to automate the provisioning and deployment of various LAMP envirnments. These include the Pixelant t3kit for cloud deployment as well as wordpress and other common web application stacks. 
 
 
 Installation Instructions
