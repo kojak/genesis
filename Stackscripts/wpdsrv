@@ -64,8 +64,8 @@ install_wordpress () {
     echo -e "Patching PHP..." >> $LOG 
     cp -p /etc/php.ini /etc/php.ini.orig
     cat > /tmp/php.ini.patch << 'EOF'
---- /etc/php.ini	2016-05-12 13:49:38.000000000 +0000
-+++ /etc/php.ini	2016-06-21 12:10:20.975267701 +0000
+--- /etc/php.ini    2016-05-12 13:49:38.000000000 +0000
++++ /etc/php.ini    2016-06-21 12:10:20.975267701 +0000
 @@ -797,7 +797,7 @@
  
  ; Maximum allowed size for uploaded files.
@@ -83,8 +83,8 @@ rm -f /tmp/php.ini.patch
     echo -e "Patching Wordpress..." >> $LOG        
         cp /root/wordpress/wp-config-sample.php /root/wordpress/wp-config.php
         cat > /tmp/wp-config.php.patch << 'EOF'
---- /root/wordpress/wp-config.php	2015-12-16 09:58:26.000000000 +0000
-+++ /root/wordpress/wp-config.php	2016-06-20 14:47:22.742543928 +0000
+--- /root/wordpress/wp-config.php    2015-12-16 09:58:26.000000000 +0000
++++ /root/wordpress/wp-config.php    2016-06-20 14:47:22.742543928 +0000
 @@ -20,13 +20,13 @@
  
  // ** MySQL settings - You can get this info from your web host ** //
@@ -108,5 +108,12 @@ rm -f /tmp/wp-config.php.patch
 systemctl restart httpd.service
 }
 
+post_install () {
+
+    echo -e "Running post install..." >> $LOG
+    updatedb
+}
+
 install_deps
 install_wordpress
+post_install
