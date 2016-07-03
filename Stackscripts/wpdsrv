@@ -65,7 +65,8 @@ install_wordpress () {
     tar xzvf latest.tar.gz
     rsync -avP ~/wordpress/ /var/www/html/
     mkdir -p  /var/www/html/wp-content/uploads
-    sudo chown -R apache:apache /var/www/html/*
+    sudo chown -R apache:apache /var/www/html/
+    sudo chown -R root:root /var/www/html/wp-admin
 
     echo -e "# Patching PHP..." >> $LOG 
     cp -p /etc/php.ini /etc/php.ini.orig
@@ -87,10 +88,10 @@ EOF
 rm -f /tmp/php.ini.patch
 
     echo -e "# Patching Wordpress..." >> $LOG        
-        cp /root/wordpress/wp-config-sample.php /root/wordpress/wp-config.php
+        cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
         cat > /tmp/wp-config.php.patch << 'EOF'
---- /root/wordpress/wp-config.php    2015-12-16 09:58:26.000000000 +0000
-+++ /root/wordpress/wp-config.php    2016-06-20 14:47:22.742543928 +0000
+--- /var/www/html/wp-config.php	2015-12-16 09:58:26.000000000 +0000
++++ /var/www/html/wp-config.php	2016-07-03 22:47:39.732803933 +0000
 @@ -20,13 +20,13 @@
  
  // ** MySQL settings - You can get this info from your web host ** //
