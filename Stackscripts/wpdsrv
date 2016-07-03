@@ -39,7 +39,7 @@ function system_update {
 install_deps () {
     
     echo -e "# Installing dependencies..." >> $LOG
-    yum install httpd mariadb-server mariadb mlocate php php-mysql php-fpm patch rysnc
+    yum -y install httpd mariadb-server mariadb mlocate php php-mysql php-fpm patch rysnc htop
     systemctl start httpd.service
     systemctl enable httpd.service
     systemctl start mariadb
