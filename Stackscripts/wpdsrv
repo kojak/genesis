@@ -88,8 +88,8 @@ EOF
 rm -f /tmp/php.ini.patch
 
     echo -e "# Patching Wordpress..." >> $LOG        
-        cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-        cat > /tmp/wp-config.php.patch << 'EOF'
+    cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+    cat > /tmp/wp-config.php.patch << 'EOF'
 --- /var/www/html/wp-config.php	2015-12-16 09:58:26.000000000 +0000
 +++ /var/www/html/wp-config.php	2016-07-03 22:47:39.732803933 +0000
 @@ -20,13 +20,13 @@
