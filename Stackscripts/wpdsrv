@@ -45,7 +45,7 @@ install_deps () {
     systemctl start mariadb
     
     echo -e "# Securing MySql..." >> $LOG 
-    echo -e "\n\nMySql2016\nMySql2016\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
+    echo -e "\n\nMySqlAdm00\nMySqlAdm00\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
 
     systemctl enable mariadb.service
     systemctl restart httpd.service
@@ -82,23 +82,24 @@ rm -f /tmp/php.ini.patch
 
     echo -e "Patching Wordpress..." >> $LOG        
         cp /root/wordpress/wp-config-sample.php /root/wordpress/wp-config.php
+        cp /root/wordpress/wp-config.php /root/wordpress/wp-config.php.orig
         cat > /tmp/wp-config.php.patch << 'EOF'
---- /root/wordpress/wp-config.php    2015-12-16 09:58:26.000000000 +0000
-+++ /root/wordpress/wp-config.php    2016-06-20 14:47:22.742543928 +0000
+--- /root/wordpress/wp-config.php    2016-07-03 21:30:22.673491213 +0000
++++ /root/wordpress/wp-config.php    2016-07-03 21:39:27.848577336 +0000
 @@ -20,13 +20,13 @@
  
  // ** MySQL settings - You can get this info from your web host ** //
  /** The name of the database for WordPress */
 -define('DB_NAME', 'database_name_here');
-+define('DB_NAME', 'WordpressDB');
++define('DB_NAME', 'wordpress');
  
  /** MySQL database username */
 -define('DB_USER', 'username_here');
-+define('DB_USER', 'WordpressUSR');
++define('DB_USER', 'wpadmin');
  
  /** MySQL database password */
 -define('DB_PASSWORD', 'password_here');
-+define('DB_PASSWORD', 'MySql2016');
++define('DB_PASSWORD', 'WdbAdm00');
  
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
