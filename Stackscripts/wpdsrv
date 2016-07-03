@@ -48,7 +48,7 @@ install_deps () {
     systemctl enable mariadb.service
    
     echo -e "# Creating dadatbases..." >> $LOG
-    mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'WpAdm00'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'WpAdm00'; FLUSH PRIVILEGES; exit"
+    mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'WpDbAdm00'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'WpDbAdm00'; FLUSH PRIVILEGES; exit"
 
     echo -e "# Securing MySql..." >> $LOG 
     echo -e "\n\nMySqlAdm00\nMySqlAdm00\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
@@ -96,15 +96,15 @@ rm -f /tmp/php.ini.patch
  // ** MySQL settings - You can get this info from your web host ** //
  /** The name of the database for WordPress */
 -define('DB_NAME', 'database_name_here');
-+define('DB_NAME', 'WordpressDB');
++define('DB_NAME', 'wordpress');
  
  /** MySQL database username */
 -define('DB_USER', 'username_here');
-+define('DB_USER', 'WordpressUSR');
++define('DB_USER', 'wpadmin');
  
  /** MySQL database password */
 -define('DB_PASSWORD', 'password_here');
-+define('DB_PASSWORD', 'MySql2016');
++define('DB_PASSWORD', 'WpDbAdm00');
  
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
