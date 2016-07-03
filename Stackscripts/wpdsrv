@@ -84,14 +84,14 @@ install_wordpress () {
  max_file_uploads = 20
 
 EOF
-(cd / && patch -p0) < /tmp/php.ini.patch
-rm -f /tmp/php.ini.patch
+    (cd / && patch -p0) < /tmp/php.ini.patch
+    rm -f /tmp/php.ini.patch
 
     echo -e "# Patching Wordpress..." >> $LOG        
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
     cat > /tmp/wp-config.php.patch << 'EOF'
---- /var/www/html/wp-config.php	2015-12-16 09:58:26.000000000 +0000
-+++ /var/www/html/wp-config.php	2016-07-03 23:17:07.898866778 +0000
+--- /var/www/html/wp-config.php    2015-12-16 09:58:26.000000000 +0000
++++ /var/www/html/wp-config.php    2016-07-03 23:17:07.898866778 +0000
 @@ -20,13 +20,13 @@
  
  // ** MySQL settings - You can get this info from your web host ** //
@@ -109,13 +109,15 @@ rm -f /tmp/php.ini.patch
  
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
+
 EOF
-(cd / && patch -p0) < /tmp/wp-config.php.patch
-rm -f /tmp/wp-config.php.patch
-chown -R apache:apache /var/www/html/
-chown -R root:root /var/www/html/wp-admin
-systemctl restart mariadb.service
-systemctl restart httpd.service
+    (cd / && patch -p0) < /tmp/wp-config.php.patch
+    rm -f /tmp/wp-config.php.patch
+
+    chown -R apache:apache /var/www/html/
+    chown -R root:root /var/www/html/wp-admin
+    systemctl restart mariadb.service
+    systemctl restart httpd.service
 
 }
 
