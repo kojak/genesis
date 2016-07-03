@@ -65,8 +65,8 @@ install_wordpress () {
     tar xzvf latest.tar.gz
     rsync -avP ~/wordpress/ /var/www/html/
     mkdir -p  /var/www/html/wp-content/uploads
-    sudo chown -R apache:apache /var/www/html/
-    sudo chown -R root:root /var/www/html/wp-admin
+    chown -R apache:apache /var/www/html/
+    chown -R root:root /var/www/html/wp-admin
 
     echo -e "# Patching PHP..." >> $LOG 
     cp -p /etc/php.ini /etc/php.ini.orig
@@ -109,6 +109,7 @@ rm -f /tmp/php.ini.patch
  
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
+
 EOF
 (cd / && patch -p0) < /tmp/wp-config.php.patch
 rm -f /tmp/wp-config.php.patch
