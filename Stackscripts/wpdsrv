@@ -45,7 +45,10 @@ function install_deps {
 
     yum install mariadb-server mariadb
     systemctl start mariadb
-    # mysql_secure_installation
+    
+    echo -e "# Securing MySql..." >> $LOG 
+    echo -e "\n\nmysecret\nmysecret\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
+
     systemctl enable mariadb.service
     yum install php php-mysql php-fpm
     systemctl restart httpd.service
