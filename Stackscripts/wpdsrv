@@ -77,7 +77,7 @@ install_wordpress () {
  max_file_uploads = 20
 
 EOF
-(patch -p0) < /tmp/php.ini.patch
+(cd / && patch -p0) < /tmp/php.ini.patch
 rm -f /tmp/php.ini.patch
 
     echo -e "Patching Wordpress..." >> $LOG        
@@ -103,7 +103,7 @@ rm -f /tmp/php.ini.patch
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
 EOF
-(patch -p0) < /tmp/wp-config.php.patch
+(cd / && patch -p0) < /tmp/wp-config.php.patch
 rm -f /tmp/wp-config.php.patch
 systemctl restart httpd.service
 }
