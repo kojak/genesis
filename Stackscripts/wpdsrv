@@ -91,7 +91,7 @@ rm -f /tmp/php.ini.patch
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
     cat > /tmp/wp-config.php.patch << 'EOF'
 --- /var/www/html/wp-config.php	2015-12-16 09:58:26.000000000 +0000
-+++ /var/www/html/wp-config.php	2016-07-03 22:47:39.732803933 +0000
++++ /var/www/html/wp-config.php	2016-07-03 23:17:07.898866778 +0000
 @@ -20,13 +20,13 @@
  
  // ** MySQL settings - You can get this info from your web host ** //
@@ -109,7 +109,6 @@ rm -f /tmp/php.ini.patch
  
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
-
 EOF
 (cd / && patch -p0) < /tmp/wp-config.php.patch
 rm -f /tmp/wp-config.php.patch
