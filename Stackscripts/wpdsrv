@@ -113,7 +113,11 @@ rm -f /tmp/php.ini.patch
 EOF
 (cd / && patch -p0) < /tmp/wp-config.php.patch
 rm -f /tmp/wp-config.php.patch
+chown -R apache:apache /var/www/html/
+chown -R root:root /var/www/html/wp-admin
+systemctl restart mariadb.service
 systemctl restart httpd.service
+
 }
 
 post_install () {
