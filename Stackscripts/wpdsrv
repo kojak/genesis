@@ -50,3 +50,5 @@ function install_deps {
     yum install php php-mysql php-fpm
     systemctl restart httpd.service
 }
+
+install_deps
