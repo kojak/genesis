@@ -57,7 +57,6 @@ install_deps () {
     systemctl restart httpd.service
 }
 
-
 install_wordpress () {
     
     cd ~
@@ -90,8 +89,8 @@ EOF
     echo -e "# Patching Wordpress..." >> $LOG        
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
     cat > /tmp/wp-config.php.patch << 'EOF'
---- /var/www/html/wp-config.php    2015-12-16 09:58:26.000000000 +0000
-+++ /var/www/html/wp-config.php    2016-07-03 23:17:07.898866778 +0000
+--- /var/www/html/wp-config.php	2015-12-16 09:58:26.000000000 +0000
++++ /var/www/html/wp-config.php	2016-07-03 23:17:07.898866778 +0000
 @@ -20,13 +20,13 @@
  
  // ** MySQL settings - You can get this info from your web host ** //
@@ -113,18 +112,16 @@ EOF
 EOF
     (cd / && patch -p0) < /tmp/wp-config.php.patch
     rm -f /tmp/wp-config.php.patch
-
     chown -R apache:apache /var/www/html/
     chown -R root:root /var/www/html/wp-admin
-    systemctl restart mariadb.service
-    systemctl restart httpd.service
-
 }
 
 post_install () {
 
     echo -e "# Running post install..." >> $LOG
     updatedb
+    systemctl restart mariadb.service
+    systemctl restart httpd.service
 }
 
 install_deps
