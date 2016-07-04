@@ -24,33 +24,33 @@ set -x
 # Define logfile
 LOG="/root/install.log"
 
-echo -e "########################################################################" > $LOG
-echo -e "Installing System..." >> $LOG
-echo -e "########################################################################\n" >> $LOG
-echo -e $(date) >> $LOG
-echo >> $LOG
+echo -e "########################################################################" > ${LOG}
+echo -e "Installing System..." >> ${LOG}
+echo -e "########################################################################\n" >> ${LOG}
+echo -e $(date) >> ${LOG}
+echo >> ${LOG}
 
 # Execution statements logically grouped into functions.
 function system_update {
-    echo -e "# Updating system..." >> $LOG
+    echo -e "# Updating system..." >> ${LOG}
     yum -y update > /dev/null 2>&1
 }
 
 install_deps () {
     
-    echo -e "# Installing dependencies..." >> $LOG
+    echo -e "# Installing dependencies..." >> ${LOG}
     yum -y install httpd mariadb-server mariadb mlocate php php-mysql php-fpm patch rysnc htop
 
-    echo -e "# Starting services..." >> $LOG
+    echo -e "# Starting services..." >> ${LOG}
     systemctl start httpd.service
     systemctl enable httpd.service
     systemctl start mariadb.service
     systemctl enable mariadb.service
    
-    echo -e "# Creating dadatbases..." >> $LOG
+    echo -e "# Creating dadatbases..." >> ${LOG}
     mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'WpDbAdm00'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'WpDbAdm00'; FLUSH PRIVILEGES; exit"
 
-    echo -e "# Securing MySql..." >> $LOG 
+    echo -e "# Securing MySql..." >> ${LOG} 
     echo -e "\n\nMySqlAdm00\nMySqlAdm00\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
 
     systemctl restart mariadb.service
@@ -67,7 +67,7 @@ install_wordpress () {
     chown -R apache:apache /var/www/html/
     chown -R root:root /var/www/html/wp-admin
 
-    echo -e "# Patching PHP..." >> $LOG 
+    echo -e "# Patching PHP..." >> ${LOG} 
     cp -p /etc/php.ini /etc/php.ini.orig
     cat > /tmp/php.ini.patch << 'EOF'
 --- /etc/php.ini    2016-05-12 13:49:38.000000000 +0000
@@ -86,7 +86,7 @@ EOF
     (cd / && patch -p0) < /tmp/php.ini.patch
     rm -f /tmp/php.ini.patch
 
-    echo -e "# Patching Wordpress..." >> $LOG        
+    echo -e "# Patching Wordpress..." >> ${LOG}        
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
     cat > /tmp/wp-config.php.patch << 'EOF'
 --- /var/www/html/wp-config.php	2015-12-16 09:58:26.000000000 +0000
@@ -118,8 +118,9 @@ EOF
 
 post_install () {
 
-    echo -e "# Running post install..." >> $LOG
+    echo -e "# Running post install..." >> ${LOG}
     updatedb
+    hostnamectl set-hostname srv01.arisim.consuling
     systemctl restart mariadb.service
     systemctl restart httpd.service
 }
