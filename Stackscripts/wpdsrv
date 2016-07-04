@@ -48,10 +48,10 @@ install_deps () {
     systemctl enable mariadb.service
    
     echo -e "# Creating dadatbases..." >> ${LOG}
-    mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'WpDbAdm00'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'WpDbAdm00'; FLUSH PRIVILEGES; exit"
+    mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'ChangeMe'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'ChangeMe'; FLUSH PRIVILEGES; exit"
 
     echo -e "# Securing MySql..." >> ${LOG} 
-    echo -e "\n\nMySqlAdm00\nMySqlAdm00\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
+    echo -e "\n\nChangeMe\nChangeMe\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
 
     systemctl restart mariadb.service
     systemctl restart httpd.service
@@ -105,7 +105,7 @@ EOF
  
  /** MySQL database password */
 -define('DB_PASSWORD', 'password_here');
-+define('DB_PASSWORD', 'WpDbAdm00');
++define('DB_PASSWORD', 'ChangeMe');
  
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
