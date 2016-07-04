@@ -105,7 +105,11 @@ EOF
  
  /** MySQL database password */
 -define('DB_PASSWORD', 'password_here');
+<<<<<<< HEAD
 +define('DB_PASSWORD', 'ChangeMe');
+=======
++define('DB_PASSWORD', 'WpDbAdm00');
+>>>>>>> 94f4c1afe69a1b4de93b30b61593cb443daa7be4
  
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
