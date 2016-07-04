@@ -39,7 +39,7 @@ function system_update {
 install_deps () {
     
     echo -e "# Installing dependencies..." >> ${LOG}
-    yum -y install httpd mariadb-server mariadb mlocate php php-mysql php-fpm patch rysnc htop
+    yum -y install httpd mariadb-server mariadb mlocate php php-mysql php-fpm patch rysnc htop dos2unix
 
     echo -e "# Starting services..." >> ${LOG}
     systemctl start httpd.service
@@ -88,6 +88,7 @@ EOF
 
     echo -e "# Patching Wordpress..." >> ${LOG}        
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+    dos2unix /var/www/html/wp-config.php
     cat > /tmp/wp-config.php.patch << 'EOF'
 --- /var/www/html/wp-config.php	2015-12-16 09:58:26.000000000 +0000
 +++ /var/www/html/wp-config.php	2016-07-03 23:17:07.898866778 +0000
