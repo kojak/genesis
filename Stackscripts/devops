@@ -119,7 +119,7 @@ add_hostname () {
 }
 
 install_docker () {
-    echo -e "# Installing docker" >> ${LOG}
+    echo -e "# Installing docker..." >> ${LOG}
     cat > /etc/yum.repos.d/docker.repo <<-'EOF'
 [dockerrepo]
 name=Docker Repository
@@ -137,7 +137,7 @@ ExecStart=
 ExecStart=/usr/bin/docker daemon --storage-driver=overlay --insecure-registry 172.30.0.0/16 -H fd://
 EOF
  
-echo -e "# Initialising docker" >> ${LOG}
+echo -e "# Initialising docker..." >> ${LOG}
 systemctl daemon-reload
 systemctl enable docker
 systemctl restart docker
