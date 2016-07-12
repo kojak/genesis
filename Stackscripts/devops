@@ -227,10 +227,10 @@ EOF
     
     [[ -f "/tmp/openshift-ansible.git" ]] || cd /tmp && git clone https://github.com/openshift/openshift-ansible.git
     cd /tmp/openshift-ansible/roles/openshift_examples/files/examples/latest/
+    dos2unix *
     for image in image-streams/image-streams-centos7.json; do cat $image | oc create -n openshift -f -; done
     for image in db-templates/*.json; do cat $image | oc create -n openshift -f -; done
     for image in quickstart-templates/*.json; do cat $image | oc create -n openshift -f -; done
-
 }
 
 install_openshift_client () {
