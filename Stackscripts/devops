@@ -115,7 +115,7 @@ setup_env () {
 
 add_hostname () {
     hostnamectl set-hostname devops00.oneincredible.com
-    [[ ! -z $(grep devops /etc/hosts) ]] || echo -e "139.162.173.55\tmaster master.oneincredible.com\n139.162.173.55\tdevops00 devops00.oneincredible.com" >> /etc/hosts
+    [[ ! -z $(grep devops /etc/hosts) ]] || echo -e "139.162.173.55\tmaster master.oneincredible.com devops00 devops00.oneincredible.com" >> /etc/hosts
 }
 
 install_docker () {
