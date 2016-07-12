@@ -281,7 +281,7 @@ export KUBECONFIG=$OPENSHIFT/openshift.local.config/master/admin.kubeconfig
 export CURL_CA_BUNDLE=$OPENSHIFT/openshift.local.config/master/ca.crt
 EOF
 
-    source /etc/profile.d/openshift
+    source /etc/profile.d/openshift.sh
     echo -e "# Downloading gofabric8..." >> ${LOG}
     cd /opt
     mkdir gofabric8
