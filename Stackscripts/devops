@@ -296,7 +296,7 @@ EOF
     /opt/gofabric8/gofabric8 deploy --yes --namespace="default" --domain oneincredible.com
     oc get oauthclient fabric8
 
-    echo -e "# Configure cd-pipeline..." >> ${LOG}
+    echo -e "# Configuring cd-pipeline..." >> ${LOG}
     /opt/gofabric8/gofabric8 pull cd-pipeline
 
     echo -e "# Validate installaiton..." >> ${LOG}
