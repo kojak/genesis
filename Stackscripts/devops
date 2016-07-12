@@ -225,7 +225,6 @@ EOF
     oadm policy add-scc-to-user hostnetwork -z router
     oadm router router --replicas=1 --service-account=router 
     
-    
     [[ -f "/tmp/openshift-ansible.git" ]] || cd /tmp && git clone https://github.com/openshift/openshift-ansible.git
     cd /tmp/openshift-ansible/roles/openshift_examples/files/examples/latest/
     for image in image-streams/image-streams-centos7.json; do cat $image | oc create -n openshift -f -; done
