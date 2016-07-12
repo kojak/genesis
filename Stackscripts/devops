@@ -50,7 +50,7 @@ update_system () {
 install_packages () {
     echo -e "# Installing packages..." >> ${LOG}
     [[ -f "/etc/yum.repos.d/rpmforge.repo" ]] || rpm -Uvh ftp://139.162.181.50/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-    yum -y install git wget unzip net-tools patch mlocate maven htop iftop curl tree
+    yum -y install git wget unzip net-tools patch mlocate maven htop iftop curl tree bind-utils
 }
 
 create_profiles () {
