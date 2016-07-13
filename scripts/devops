@@ -308,6 +308,10 @@ EOF
     /opt/gofabric8/gofabric8 validate --namespace="default"
 }
 
+installation_complete() {
+    echo -e "# Installation complete..." >> ${LOG}
+}
+
 configure_network
 disable_firewall
 update_system
@@ -321,3 +325,4 @@ install_docker
 install_openshift
 install_openshift_client
 install_fabric8
+installation_complete
