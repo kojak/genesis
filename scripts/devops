@@ -36,13 +36,14 @@ echo >> ${LOG}
 # Execution statements logically grouped into functions.
 
 configure_network() {
+    echo -e "# Configuring network..." >> ${LOG}
     yum -y remove NetworkManager*
     systemctl stop NetworkManager
     systemctl disable NetworkManager
 }
 
 disable_firewall() {
-    echo -e "# Disabling..." >> ${LOG}
+    echo -e "# Disabling firewall..." >> ${LOG}
     systemctl stop iptables > /dev/null 2>&1 
     systemctl stop ip6tables > /dev/null 2>&1
     systemctl stop firewalld > /dev/null 2>&1
