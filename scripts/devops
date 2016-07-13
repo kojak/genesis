@@ -25,7 +25,7 @@ set -x
 [[ $(id -u) == 0 ]] || echo -e "\n# This script requires root privileges to run"
 
 # Define logfile
-LOG="/root/openshift.log"
+LOG="/root/install.log"
 
 echo -e "########################################################################" > ${LOG}
 echo -e "Installing Openshift Origin..." >> ${LOG}
@@ -33,7 +33,7 @@ echo -e "#######################################################################
 echo -e $(date) >> ${LOG}
 echo >> ${LOG}
 
-# Execution statements logicaly grouped into functions.
+# Execution statements logically grouped into functions.
 
 disable_firewall () {
     echo -e "# Disabling..." >> ${LOG}
