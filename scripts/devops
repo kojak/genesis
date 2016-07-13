@@ -312,5 +312,4 @@ add_hostname
 install_docker
 install_openshift
 install_openshift_client
-create_dnsmasq
 install_fabric8
