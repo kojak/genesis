@@ -309,7 +309,7 @@ EOF
 }
 
 installation_complete() {
-    echo -e "# Installation complete..." >> ${LOG}
+    echo -e "# Installation complete!!!" >> ${LOG}
 }
 
 configure_network
