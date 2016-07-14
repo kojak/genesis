@@ -369,9 +369,9 @@ create_dnsmasq
 setup_env
 add_hostname
 install_docker
+install_openshift
 patch_openshift
 config_openshift
-install_openshift
 install_openshift_client
 install_fabric8
 installation_complete
