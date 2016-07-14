@@ -108,10 +108,10 @@ EOF
     cat > /etc/profile.d/openshift.sh << 'EOF'
 export OPENSHIFT_VERSION=v1.3.0-alpha.2
 export OPENSHIFT=/opt/openshift-origin-server-${OPENSHIFT_VERSION}
-export OPENSHIFT_CLIENT=/opt/openshift-origin-client-tools-OPENSHIFT_VERSION
-export PATH=$OPENSHIFT:$PATH
-export KUBECONFIG=$OPENSHIFT/openshift.local.config/master/admin.kubeconfig
-export CURL_CA_BUNDLE=$OPENSHIFT/openshift.local.config/master/ca.crt
+export OPENSHIFT_CLIENT=/opt/openshift-origin-client-tools-${OPENSHIFT_VERSION}
+export PATH=${OPENSHIFT}:${PATH}
+export KUBECONFIG=${OPENSHIFT}/openshift.local.config/master/admin.kubeconfig
+export CURL_CA_BUNDLE=${OPENSHIFT}/openshift.local.config/master/ca.crt
 EOF
 }
 
@@ -224,11 +224,11 @@ EOF
 
 patch_openshift() {
     echo -e "# Patching openshift..." >> ${LOG}
-    cd $OPENSHIFT
-    $OPENSHIFT/openshift start --write-config=openshift.local.config 
-    [[ -f "$OPENSHIFT/openshift.local.config/master/master-config.yaml.orig" ]]; mv \
-    $OPENSHIFT/openshift.local.config/master/master-config.yaml.orig $OPENSHIFT/openshift.local.config/master/master-config.yaml
-    cp -p $OPENSHIFT/openshift.local.config/master/master-config.yaml $OPENSHIFT/openshift.local.config/master/master-config.yaml.orig
+    cd ${OPENSHIFT}
+    ${OPENSHIFT}/openshift start --write-config=openshift.local.config 
+    [[ -f "${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig" ]]; mv \
+    ${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig ${OPENSHIFT}/openshift.local.config/master/master-config.yaml
+    cp -p ${OPENSHIFT}/openshift.local.config/master/master-config.yaml ${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig
     cat > /tmp/openshift.patch << 'EOF'
 --- /opt/openshift-origin-server-v1.3.0-alpha.2/openshift.local.config/master/master-config.yaml	2016-07-14 01:57:02.233390544 +0000
 +++ /opt/openshift-origin-server-v1.3.0-alpha.2/openshift.local.config/master/master-config.yaml	2016-07-14 01:56:05.013065611 +0000
@@ -275,9 +275,9 @@ EOF
 
 config_openshift() {
     echo -e "# Configuring openshift..." >> ${LOG}
-    chmod +r $OPENSHIFT/openshift.local.config/master/admin.kubeconfig
-    chmod +r $OPENSHIFT/openshift.local.config/master/openshift-registry.kubeconfig
-    chmod +r $OPENSHIFT/openshift.local.config/master/openshift-router.kubeconfig
+    chmod +r ${OPENSHIFT}/openshift.local.config/master/admin.kubeconfig
+    chmod +r ${OPENSHIFT}/openshift.local.config/master/openshift-registry.kubeconfig
+    chmod +r ${OPENSHIFT}/openshift.local.config/master/openshift-router.kubeconfig
 
     htpasswd -cb /opt/users.htpasswd admin admin
 
@@ -331,9 +331,9 @@ install_fabric8() {
     [[ -f "/etc/profile.d/openshift.sh" ]] || cat > /etc/profile.d/openshift.sh << 'EOF'
 export OPENSHIFT_VERSION=v1.3.0-alpha.2
 export OPENSHIFT=/opt/openshift-origin-server-${OPENSHIFT_VERSION}
-export PATH=$OPENSHIFT:$PATH
-export KUBECONFIG=$OPENSHIFT/openshift.local.config/master/admin.kubeconfig
-export CURL_CA_BUNDLE=$OPENSHIFT/openshift.local.config/master/ca.crt
+export PATH=${OPENSHIFT}:$PATH
+export KUBECONFIG=${OPENSHIFT}/openshift.local.config/master/admin.kubeconfig
+export CURL_CA_BUNDLE=${OPENSHIFT}/openshift.local.config/master/ca.crt
 EOF
 
     source /etc/profile.d/openshift.sh
