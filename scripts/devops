@@ -224,13 +224,56 @@ EOF
 
     cd $OPENSHIFT
     $OPENSHIFT/openshift start --write-config=openshift.local.config 
-    sed -i 's/router.default.svc.cluster.local/oneincredible.com/' \
-    $OPENSHIFT/openshift.local.config/master/master-config.yaml
-    sed -i 's/0.0.0.0:53/127.0.0.1:8053/' \
-    $OPENSHIFT/openshift.local.config/master/master-config.yaml
+    [[ -f "$OPENSHIFT/openshift.local.config/master/master-config.yaml.orig" ]]; mv \
+    $OPENSHIFT/openshift.local.config/master/master-config.yaml.orig $OPENSHIFT/openshift.local.config/master/master-config.yaml
+    cp -p $OPENSHIFT/openshift.local.config/master/master-config.yaml $OPENSHIFT/openshift.local.config/master/master-config.yaml.orig
+    cat > /tmp/openshift.patch << 'EOF'
+--- /openshift.local.config/master/master-config.yaml	2016-07-14 01:57:02.233390544 +0000
++++ /openshift.local.config/master/master-config.yaml	2016-07-14 01:56:05.013065611 +0000
+@@ -36,6 +36,7 @@
+ - 127.0.0.1
+ - 139.162.173.55:8443
+ - localhost
++- "*"
+ disabledFeatures: null
+ dnsConfig:
+   allowRecursiveQueries: true
+@@ -124,13 +125,14 @@
+     method: auto
+     serviceAccountMethod: prompt
+   identityProviders:
+-  - challenge: true
++  - name: htpaswd
++    challenge: true
+     login: true
+     mappingMethod: claim
+-    name: anypassword
+     provider:
+       apiVersion: v1
+-      kind: AllowAllPasswordIdentityProvider
++      kind: HTPasswdPasswordIdentityProvider
++      file: /opt/users.htpasswd
+   masterCA: ca-bundle.crt
+   masterPublicURL: https://139.162.173.55:8443
+   masterURL: https://139.162.173.55:8443
+@@ -160,7 +162,7 @@
+     mcsLabelsPerProject: 5
+     uidAllocatorRange: 1000000000-1999999999/10000
+ routingConfig:
+-  subdomain: router.default.svc.cluster.local
++  subdomain: oneincredible.com
+ serviceAccountConfig:
+   limitSecretReferences: false
+   managedNames:
+EOF
+    (cd / && patch -p0) < /tmp/openshift.patch
+    rm -f /tmp/openshift.patch
+
     chmod +r $OPENSHIFT/openshift.local.config/master/admin.kubeconfig
     chmod +r $OPENSHIFT/openshift.local.config/master/openshift-registry.kubeconfig
     chmod +r $OPENSHIFT/openshift.local.config/master/openshift-router.kubeconfig
+
+    htpasswd -cb /opt/users.htpasswd admin Uzr*Adm2015
 
     systemctl daemon-reload
     systemctl enable openshift-origin
