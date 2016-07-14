@@ -218,8 +218,8 @@ Requires=docker.service
 [Service]
 Restart=always
 RestartSec=10s
-ExecStart=/opt/openshift-origin-server-${OPENSHIFT_VERSION}/openshift start
-WorkingDirectory=/opt/openshift-origin-server-${OPENSHIFT_VERSION}
+ExecStart=/opt/openshift-origin-server-v1.3.0-alpha.2/openshift start
+WorkingDirectory=/opt/openshift-origin-server-v1.3.0-alpha.2
  
 [Install]
 WantedBy=multi-user.target
@@ -290,8 +290,6 @@ config_openshift() {
     systemctl daemon-reload
     systemctl enable openshift-origin
     systemctl start openshift-origin
-
-    source /etc/profile.d/openshift.sh
 
     while ! timeout 1 bash -c "echo > /dev/tcp/localhost/8443"; do echo -e "# Retrying...please be patient" && sleep 12 ; done
     echo -e "# Creating service accounts for registry and router..." >> ${LOG}
