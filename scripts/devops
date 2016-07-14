@@ -106,9 +106,9 @@ PROMPT_COMMAND=history_sync
 EOF
 
     cat > /etc/profile.d/openshift.sh << 'EOF'
-export OPENSHIFT=/opt/openshift-origin-server-v1.3.0-alpha
-export OPENSHIFT_CLIENT=/opt/openshift-origin-client-tools-v1.3.0-alpha
-export OPENSHIFT_VERSION=v1.3.0-alpha
+export OPENSHIFT=/opt/openshift-origin-server-v1.3.0-alpha.2
+export OPENSHIFT_CLIENT=/opt/openshift-origin-client-tools-v1.3.0-alpha.2
+export OPENSHIFT_VERSION=v1.3.0-alpha.2
 export PATH=$OPENSHIFT:$PATH
 export KUBECONFIG=$OPENSHIFT/openshift.local.config/master/admin.kubeconfig
 export CURL_CA_BUNDLE=$OPENSHIFT/openshift.local.config/master/ca.crt
@@ -201,10 +201,10 @@ EOF
 
 install_openshift() {
     echo -e "# Installing openshift..." >> ${LOG}
-    mkdir /opt/openshift-origin-server-v1.3.0-alpha
+    mkdir /opt/openshift-origin-server-v1.3.0-alpha.2
     [[ -f "/tmp/openshift-origin-server-v1.3.0-alpha.2-983578e-linux-64bit.tar.gz" ]] || \
     wget https://github.com/openshift/origin/releases/download/v1.3.0-alpha.2/openshift-origin-server-v1.3.0-alpha.2-983578e-linux-64bit.tar.gz -P /tmp
-    tar -zxvf /tmp/openshift-origin-server-v1.3.0-alpha.2-983578e-linux-64bit.tar.gz -C /opt/openshift-origin-server-v1.3.0-alpha/ --strip-components 1
+    tar -zxvf /tmp/openshift-origin-server-v1.3.0-alpha.2-983578e-linux-64bit.tar.gz -C /opt/openshift-origin-server-v1.3.0-alpha.2/ --strip-components 1
     cat > /etc/systemd/system/openshift-origin.service << 'EOF'
 [Unit]
 Description=Origin Master Service
@@ -214,8 +214,8 @@ Requires=docker.service
 [Service]
 Restart=always
 RestartSec=10s
-ExecStart=/opt/openshift-origin-server-v1.3.0-alpha/openshift start
-WorkingDirectory=/opt/openshift-origin-server-v1.3.0-alpha
+ExecStart=/opt/openshift-origin-server-v1.3.0-alpha.2/openshift start
+WorkingDirectory=/opt/openshift-origin-server-v1.3.0-alpha.2
  
 [Install]
 WantedBy=multi-user.target
@@ -230,8 +230,8 @@ patch_openshift() {
     $OPENSHIFT/openshift.local.config/master/master-config.yaml.orig $OPENSHIFT/openshift.local.config/master/master-config.yaml
     cp -p $OPENSHIFT/openshift.local.config/master/master-config.yaml $OPENSHIFT/openshift.local.config/master/master-config.yaml.orig
     cat > /tmp/openshift.patch << 'EOF'
---- /opt/openshift-origin-server-v1.3.0-alpha/openshift.local.config/master/master-config.yaml	2016-07-14 01:57:02.233390544 +0000
-+++ /opt/openshift-origin-server-v1.3.0-alpha/openshift.local.config/master/master-config.yaml	2016-07-14 01:56:05.013065611 +0000
+--- /opt/openshift-origin-server-v1.3.0-alpha.2/openshift.local.config/master/master-config.yaml	2016-07-14 01:57:02.233390544 +0000
++++ /opt/openshift-origin-server-v1.3.0-alpha.2/openshift.local.config/master/master-config.yaml	2016-07-14 01:56:05.013065611 +0000
 @@ -36,6 +36,7 @@
  - 127.0.0.1
  - 139.162.173.55:8443
@@ -321,7 +321,7 @@ config_openshift() {
 
 install_openshift_client() {
     echo -e "# Installing openshift client..." >> ${LOG}
-    mkdir /opt/openshift-origin-client-tools-v1.3.0-alpha
+    mkdir /opt/openshift-origin-client-tools-v1.3.0-alpha.2
     [[ -f "/tmp/openshift-origin-client-tools-v1.3.0-alpha.2-983578e-linux-64bit.tar.gz" ]] || \
     wget https://github.com/openshift/origin/releases/download/v1.3.0-alpha.2/openshift-origin-client-tools-v1.3.0-alpha.2-983578e-linux-64bit.tar.gz -P /tmp
     tar -zxvf /tmp/openshift-origin-client-tools-v1.3.0-alpha.2-983578e-linux-64bit.tar.gz -C /opt/openshift-origin-server-v1.3.0-alpha/ 
@@ -329,8 +329,8 @@ install_openshift_client() {
 
 install_fabric8() {
     [[ -f "/etc/profile.d/openshift.sh" ]] || cat > /etc/profile.d/openshift.sh << 'EOF'
-export OPENSHIFT=/opt/openshift-origin-server-v1.3.0-alpha
-export OPENSHIFT_VERSION=v1.3.0-alpha
+export OPENSHIFT=/opt/openshift-origin-server-v1.3.0-alpha.2
+export OPENSHIFT_VERSION=v1.3.0-alpha.2
 export PATH=$OPENSHIFT:$PATH
 export KUBECONFIG=$OPENSHIFT/openshift.local.config/master/admin.kubeconfig
 export CURL_CA_BUNDLE=$OPENSHIFT/openshift.local.config/master/ca.crt
