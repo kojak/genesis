@@ -234,7 +234,7 @@ EOF
  - 127.0.0.1
  - 139.162.173.55:8443
  - localhost
-+- "*"
++- ".*"
  disabledFeatures: null
  dnsConfig:
    allowRecursiveQueries: true
