@@ -115,6 +115,13 @@ export CURL_CA_BUNDLE=${OPENSHIFT}/openshift.local.config/master/ca.crt
 EOF
 }
 
+setup_env() {
+    echo -e "# Setting up environment..." >> ${LOG}
+    source /etc/profile.d/custom.sh
+    source /etc/profile.d/openshift.sh
+}
+
+
 create_resolve() {
     echo -e "# Creating resolve file..." >> ${LOG}
     cat > /etc/resolv.conf << 'EOF'
@@ -157,12 +164,8 @@ listen-address=127.0.0.1
 EOF
 }
 
-setup_env() {
-    source /etc/profile.d/custom.sh
-    source /etc/profile.d/openshift.sh
-}
-
 add_hostname() {
+    echo -e "# Setting up hostname..." >> ${LOG}
     hostnamectl set-hostname master.oneincredible.com
     [[ ! -z $(grep devops /etc/hosts) ]] || echo -e "139.162.173.55\tmaster master.oneincredible.com" >> /etc/hosts
 }
@@ -201,6 +204,7 @@ EOF
 
 install_openshift() {
     echo -e "# Installing openshift..." >> ${LOG}
+    source /etc/profile.d/openshift.sh
     mkdir /opt/openshift-origin-server-${OPENSHIFT_VERSION}
     [[ -f "/tmp/openshift-origin-server-${OPENSHIFT_VERSION}-983578e-linux-64bit.tar.gz" ]] || \
     wget https://github.com/openshift/origin/releases/download/${OPENSHIFT_VERSION}/openshift-origin-server-${OPENSHIFT_VERSION}-983578e-linux-64bit.tar.gz -P /tmp
@@ -224,6 +228,7 @@ EOF
 
 patch_openshift() {
     echo -e "# Patching openshift..." >> ${LOG}
+    source /etc/profile.d/openshift.sh
     cd ${OPENSHIFT}
     ${OPENSHIFT}/openshift start --write-config=openshift.local.config 
     [[ -f "${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig" ]]; mv \
@@ -274,6 +279,7 @@ EOF
 
 
 config_openshift() {
+    source /etc/profile.d/openshift.sh
     echo -e "# Configuring openshift..." >> ${LOG}
     chmod +r ${OPENSHIFT}/openshift.local.config/master/admin.kubeconfig
     chmod +r ${OPENSHIFT}/openshift.local.config/master/openshift-registry.kubeconfig
@@ -320,6 +326,7 @@ config_openshift() {
 }
 
 install_openshift_client() {
+    source /etc/profile.d/openshift.sh
     echo -e "# Installing openshift client..." >> ${LOG}
     mkdir /opt/openshift-origin-client-tools-${OPENSHIFT_VERSION}
     [[ -f "/tmp/openshift-origin-client-tools-${OPENSHIFT_VERSION}-983578e-linux-64bit.tar.gz" ]] || \
@@ -328,15 +335,8 @@ install_openshift_client() {
 }
 
 install_fabric8() {
-    [[ -f "/etc/profile.d/openshift.sh" ]] || cat > /etc/profile.d/openshift.sh << 'EOF'
-export OPENSHIFT_VERSION=v1.3.0-alpha.2
-export OPENSHIFT=/opt/openshift-origin-server-${OPENSHIFT_VERSION}
-export PATH=${OPENSHIFT}:$PATH
-export KUBECONFIG=${OPENSHIFT}/openshift.local.config/master/admin.kubeconfig
-export CURL_CA_BUNDLE=${OPENSHIFT}/openshift.local.config/master/ca.crt
-EOF
-
     source /etc/profile.d/openshift.sh
+    
     echo -e "# Downloading gofabric8..." >> ${LOG}
     cd /opt
     mkdir gofabric8
@@ -364,9 +364,9 @@ disable_firewall
 update_system
 install_packages
 create_profiles
+setup_env
 create_resolve
 create_dnsmasq
-setup_env
 add_hostname
 install_docker
 install_openshift

@@ -33,11 +33,11 @@ install_packages
 read
 create_profiles
 read
+setup_env
+read
 create_resolve
 read
 create_dnsmasq
-read
-setup_env
 read
 add_hostname
 read
