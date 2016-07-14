@@ -43,14 +43,15 @@ add_hostname
 read
 install_docker
 read
+install_openshift
+read
 patch_openshift
 read
 config_openshift
-read
-install_openshift
 read
 install_openshift_client
 read
 install_fabric8
 read
 installation_complete
+
