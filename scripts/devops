@@ -121,7 +121,6 @@ setup_env() {
     source /etc/profile.d/openshift.sh
 }
 
-
 create_resolve() {
     echo -e "# Creating resolve file..." >> ${LOG}
     cat > /etc/resolv.conf << 'EOF'
@@ -276,7 +275,6 @@ EOF
     (cd / && patch -p0) < /tmp/openshift.patch
     rm -f /tmp/openshift.patch
 }
-
 
 config_openshift() {
     source /etc/profile.d/openshift.sh
