@@ -37,8 +37,6 @@ setup_env
 read
 create_resolve
 read
-create_dnsmasq
-read
 add_hostname
 read
 install_docker
