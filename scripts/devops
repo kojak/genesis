@@ -234,19 +234,24 @@ patch_openshift() {
     ${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig ${OPENSHIFT}/openshift.local.config/master/master-config.yaml
     cp -p ${OPENSHIFT}/openshift.local.config/master/master-config.yaml ${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig
     cat > /tmp/openshift.patch << 'EOF'
---- /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-14 01:57:02.233390544 +0000
-+++ /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-14 01:56:05.013065611 +0000
-@@ -36,6 +36,7 @@
+--- /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-15 01:06:38.487727077 +0000
++++ /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-18 01:29:03.918456988 +0000
+@@ -28,10 +28,11 @@
  - 127.0.0.1
  - 139.162.173.55:8443
  - localhost
-+- ".*"
++- .*
  disabledFeatures: null
  dnsConfig:
-   allowRecursiveQueries: true
-@@ -124,13 +125,14 @@
+   allowRecursiveQueries: false
+-  bindAddress: 0.0.0.0:53
++  bindAddress: 127.0.0.1:8053
+   bindNetwork: tcp4
+ etcdClientInfo:
+   ca: ca.crt
+@@ -109,13 +110,14 @@
+   grantConfig:
      method: auto
-     serviceAccountMethod: prompt
    identityProviders:
 -  - challenge: true
 +  - name: htpaswd
@@ -262,15 +267,12 @@ patch_openshift() {
    masterCA: ca-bundle.crt
    masterPublicURL: https://139.162.173.55:8443
    masterURL: https://139.162.173.55:8443
-@@ -160,7 +162,7 @@
+@@ -145,7 +147,7 @@
      mcsLabelsPerProject: 5
      uidAllocatorRange: 1000000000-1999999999/10000
  routingConfig:
 -  subdomain: router.default.svc.cluster.local
 +  subdomain: oneincredible.com
- serviceAccountConfig:
-   limitSecretReferences: false
-   managedNames:
 EOF
     (cd / && patch -p0) < /tmp/openshift.patch
     rm -f /tmp/openshift.patch
