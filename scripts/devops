@@ -166,7 +166,7 @@ EOF
 add_hostname() {
     echo -e "# Setting up hostname..." >> ${LOG}
     hostnamectl set-hostname master.oneincredible.com
-    [[ ! -z $(grep devops /etc/hosts) ]] || echo -e "139.162.173.55\tmaster master.oneincredible.com" >> /etc/hosts
+    [[ ! -z $(grep devops /etc/hosts) ]] || echo -e "\n139.162.173.55\tmaster master.oneincredible.com\tfabric8 fabric8.oneincredible.com" >> /etc/hosts
 }
 
 install_docker() {
