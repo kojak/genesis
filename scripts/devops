@@ -179,7 +179,7 @@ install_openshift() {
     tar -zxvf /tmp/openshift-origin-server-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz -C /opt/openshift-origin-server-${OPENSHIFT_VERSION}/ --strip-components 1
     cat > /etc/system-config/origin-master << 'EOF'
 # Origin server options
-OPTIONS="--loglevel=0"
+OPTIONS="--loglevel=4 &> /opt/openshift.log"
 
 # Master configuration
 CONFIG_FILE=/opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml
