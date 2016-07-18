@@ -132,37 +132,6 @@ nameserver 8.8.4.4
 EOF
 }
 
-create_dnsmasq() {
-    echo -e "# Creating dnsmasq file..." >> ${LOG}
-    [[ -f "/etc/dnsmasq.conf.orig" ]] || cp /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
-    cat > /etc/dnsmasq.conf << 'EOF'
-# Reverse DNS record for master
-host-record=master.oneincredible.com,139.162.173.55
-
-# Wildcard DNS for OpenShift Applications - Points to Router
-address=/oneincredible.com/139.162.173.55
-
-# Forward .local queries to SkyDNS
-server=/local/127.0.0.1#8053
-
-# Forward reverse queries for service network to SkyDNS.
-# This is for default OpenShift SDN - change as needed.
-server=/17.30.172.in-addr.arpa/127.0.0.1#8053
-
-# Do not read /etc/resolv.conf and forward requests
-# to nameservers listed there:
-no-resolv
-
-# Never forward plain names (without a dot or domain part)
-domain-needed
-
-# Never forward addresses in the non-routed address spaces.
-bogus-priv
-
-listen-address=127.0.0.1
-EOF
-}
-
 add_hostname() {
     echo -e "# Setting up hostname..." >> ${LOG}
     hostnamectl set-hostname master.oneincredible.com
@@ -208,6 +177,16 @@ install_openshift() {
     [[ -f "/tmp/openshift-origin-server-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz" ]] || \
     wget https://github.com/openshift/origin/releases/download/${OPENSHIFT_VERSION}/openshift-origin-server-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz -P /tmp
     tar -zxvf /tmp/openshift-origin-server-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz -C /opt/openshift-origin-server-${OPENSHIFT_VERSION}/ --strip-components 1
+    cat > /etc/system-config/origin-master << 'EOF'
+# Origin server options
+OPTIONS="--loglevel=0"
+
+# Master configuration
+CONFIG_FILE=/opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml
+
+# Proxy configuration
+NO_PROXY=master.oneincredible.com
+EOF
     cat > /etc/systemd/system/openshift-origin.service << 'EOF'
 [Unit]
 Description=Origin Master Service
@@ -215,10 +194,13 @@ After=docker.service
 Requires=docker.service
  
 [Service]
-Restart=always
-RestartSec=10s
+Type=notify
+EnvironmentFile=/etc/sysconfig/origin-master
+Environment=GOTRACEBACK=crash
 ExecStart=/opt/openshift-origin-server-v1.2.1/openshift start
 WorkingDirectory=/opt/openshift-origin-server-v1.2.1
+Restart=always
+RestartSec=10s
  
 [Install]
 WantedBy=multi-user.target
@@ -234,9 +216,9 @@ patch_openshift() {
     ${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig ${OPENSHIFT}/openshift.local.config/master/master-config.yaml
     cp -p ${OPENSHIFT}/openshift.local.config/master/master-config.yaml ${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig
     cat > /tmp/openshift.patch << 'EOF'
---- /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-15 01:06:38.487727077 +0000
-+++ /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-18 01:29:03.918456988 +0000
-@@ -28,10 +28,11 @@
+--- /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml.orig	2016-07-18 17:31:16.572963662 +0000
++++ /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-18 17:41:31.726862053 +0000
+@@ -28,6 +28,7 @@
  - 127.0.0.1
  - 139.162.173.55:8443
  - localhost
@@ -244,21 +226,12 @@ patch_openshift() {
  disabledFeatures: null
  dnsConfig:
    allowRecursiveQueries: false
--  bindAddress: 0.0.0.0:53
-+  bindAddress: 127.0.0.1:8053
-   bindNetwork: tcp4
- etcdClientInfo:
-   ca: ca.crt
-@@ -109,13 +110,14 @@
-   grantConfig:
-     method: auto
-   identityProviders:
--  - challenge: true
-+  - name: htpaswd
-+    challenge: true
+@@ -112,10 +113,11 @@
+   - challenge: true
      login: true
      mappingMethod: claim
 -    name: anypassword
++    name: HTPasswd
      provider:
        apiVersion: v1
 -      kind: AllowAllPasswordIdentityProvider
@@ -273,6 +246,9 @@ patch_openshift() {
  routingConfig:
 -  subdomain: router.default.svc.cluster.local
 +  subdomain: oneincredible.com
+ serviceAccountConfig:
+   limitSecretReferences: false
+   managedNames:
 EOF
     (cd / && patch -p0) < /tmp/openshift.patch
     rm -f /tmp/openshift.patch
@@ -308,7 +284,9 @@ config_openshift() {
     echo -e "# Creating docker registry..." >> ${LOG}
     mkdir /opt/openshift-registry
     chcon -Rt svirt_sandbox_file_t /opt/openshift-registry
-    chown 1001:root /opt/openshift-registry
+    chcon -Rt svirt_sandbox_file_t /opt/openshift-origin-server-v1.2.1/openshift.local.volumes
+    chown root:root /opt/openshift-registry
+    chmod 777 /opt/openshift-registry 
     oadm policy add-scc-to-user privileged -z registry 
     oadm registry --service-account=registry --mount-host=/opt/openshift-registry
 	
@@ -364,7 +342,6 @@ install_packages
 create_profiles
 setup_env
 create_resolve
-create_dnsmasq
 add_hostname
 install_docker
 install_openshift
