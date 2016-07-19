@@ -216,7 +216,7 @@ patch_openshift() {
     ${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig ${OPENSHIFT}/openshift.local.config/master/master-config.yaml
     cp -p ${OPENSHIFT}/openshift.local.config/master/master-config.yaml ${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig
     cat > /tmp/openshift.patch << 'EOF'
---- /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml.orig	2016-07-18 17:31:16.572963662 +0000
+--- /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-18 17:31:16.572963662 +0000
 +++ /opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml	2016-07-18 17:41:31.726862053 +0000
 @@ -28,6 +28,7 @@
  - 127.0.0.1
