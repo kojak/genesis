@@ -153,6 +153,7 @@ yum -y install docker-engine
 
 [[ -d "/etc/systemd/system/docker.service.d " ]] || mkdir -p /etc/systemd/system/docker.service.d && cat > /etc/systemd/system/docker.service.d/override.conf << 'EOF'
 [Service] 
+Execstart=
 ExecStart=/usr/bin/docker daemon --storage-driver=overlay --insecure-registry 172.30.0.0/16 -H fd://
 EOF
  
