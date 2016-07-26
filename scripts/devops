@@ -301,7 +301,7 @@ config_openshift() {
 	
     echo -e "# Creating router..." >> ${LOG}
     oadm policy add-scc-to-user hostnetwork -z router
-    oadm router router --replicas=1 --service-account=router 
+    oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig --service-account=router --expose-metrics
     
     [[ -f "/tmp/openshift-ansible.git" ]] || cd /tmp && git clone https://github.com/openshift/openshift-ansible.git
     cd /tmp/openshift-ansible/roles/openshift_examples/files/examples/latest/
