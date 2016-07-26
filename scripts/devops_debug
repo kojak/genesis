@@ -24,6 +24,7 @@ source ./devops
 
 # Call functions interactively
 
+read
 config_network
 read
 disable_firewall
