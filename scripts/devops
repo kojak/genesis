@@ -112,7 +112,7 @@ export OPENSHIFT_SERVER=/opt/openshift-origin-server-${OPENSHIFT_VERSION}
 export OPENSHIFT_CLIENT=/opt/openshift-origin-client-tools-${OPENSHIFT_VERSION}
 export PATH=${OPENSHIFT}:${OPENSHIFT_SERVER}:${OPENSHIFT_CLIENT}:${PATH}
 export KUBECONFIG=${OPENSHIFT}/openshift.local.config/master/admin.kubeconfig
-export CURL_CA_BUNDLE=${OPENSHIFT}/openshift.local.config/master/ca.crt
+export CA_BUNDLE=${OPENSHIFT}/openshift.local.config/master/ca.crt
 EOF
 }
 
