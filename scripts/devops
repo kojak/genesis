@@ -186,11 +186,11 @@ EOF
 
 install_openshift() {
     echo -e "# Installing openshift..." >> ${LOG}
-    source /etc/profile.d/openshift.sh
     mkdir ${OPENSHIFT}
-    [[ -f "/tmp/openshift-origin-server-${OPENSHIFT_VERSION}-linux-64bit.tar.gz" ]] || \
-    wget https://github.com/openshift/origin/releases/download/${OPENSHIFT_VERSION}/openshift-origin-server-${OPENSHIFT_VERSION}-linux-64bit.tar.gz -P /tmp
-    tar -zxvf /tmp/openshift-origin-server-${OPENSHIFT_VERSION}-linux-64bit.tar.gz -C /${OPENSHIFT_SERVER}/ --strip-components 1
+    source /etc/profile.d/openshift.sh
+    [[ -f "/tmp/openshift-origin-server-v1.2.1-5e723f6-linux-64bit.tar.gz" ]] || \
+    wget https://github.com/openshift/origin/releases/download/v1.2.1/openshift-origin-server-v1.2.1-5e723f6-linux-64bit.tar.gz -P /tmp
+    tar -zxvf /tmp/openshift-origin-server-v1.2.1-5e723f6-linux-64bit.tar.gz -C /${OPENSHIFT_SERVER}/ --strip-components 1
     cat >/usr/lib/systemd/system/openshift.service<< 'EOF'
 [Unit]
 Description=OpenShift
@@ -203,14 +203,12 @@ WorkingDirectory=/var/lib/openshift/
 
 [Install]
 WantedBy=multi-user.target
-
 EOF
 }
 
 patch_openshift() {
     echo -e "# Patching openshift..." >> ${LOG}
     source /etc/profile.d/openshift.sh
-    mkdir ${OPENSHIFT}
     cd ${OPENSHIFT}
     ${OPENSHIFT_SERVER}/openshift start --write-config=openshift.local.config 
     [[ -f "${OPENSHIFT}/openshift.local.config/master/master-config.yaml.orig" ]]; mv \
@@ -220,10 +218,10 @@ patch_openshift() {
 --- /var/lib/openshift/openshift.local.config/master/master-config.yaml	2016-07-18 17:31:16.572963662 +0000
 +++ /var/lib/openshift/openshift.local.config/master/master-config.yaml	2016-07-18 17:41:31.726862053 +0000
 @@ -28,6 +28,7 @@
++- .*
  - 127.0.0.1
  - 139.162.173.55:8443
  - localhost
-+- .*
  disabledFeatures: null
  dnsConfig:
    allowRecursiveQueries: false
