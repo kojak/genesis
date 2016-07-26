@@ -276,7 +276,8 @@ config_openshift() {
     systemctl enable openshift.service
     systemctl start openshift.service
 
-    while ! timeout 1 bash -c "echo > /dev/tcp/localhost/8443"; do echo -e "# Retrying...please be patient" && sleep 12 ; done
+    while true; do curl -k -s -f -o /dev/null --connect-timeout 1 https://localhost:8443/healthz/ready && break || sleep 1 ; done
+
     echo -e "# Creating service accounts for registry and router..." >> ${LOG}
     ${OPENSHIFT}oc login -u system:admin -n default
     oc project default
@@ -302,6 +303,13 @@ config_openshift() {
     echo -e "# Creating router..." >> ${LOG}
     oadm policy add-scc-to-user hostnetwork -z router
     oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig --service-account=router --expose-metrics
+    
+    until oc get pods -l deploymentconfig=router,router=router  | grep -m 1 "Running"; do sleep 1 ; done
+
+    oc annotate service router prometheus.io/port=9101
+    oc annotate service router prometheus.io/scheme=http
+    oc annotate service router prometheus.io/path=/metrics
+    oc annotate service router prometheus.io/scrape=true
     
     [[ -f "/tmp/openshift-ansible.git" ]] || cd /tmp && git clone https://github.com/openshift/openshift-ansible.git
     cd /tmp/openshift-ansible/roles/openshift_examples/files/examples/latest/
