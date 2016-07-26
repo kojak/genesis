@@ -50,6 +50,4 @@ read
 install_openshift_client
 read
 install_fabric8
-read
 installation_complete
-

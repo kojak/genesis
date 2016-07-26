@@ -106,10 +106,10 @@ PROMPT_COMMAND=history_sync
 EOF
 
     cat > /etc/profile.d/openshift.sh << 'EOF'
-export OPENSHIFT_VERSION=v1.2.1
-export OPENSHIFT=/opt/openshift-origin-server-${OPENSHIFT_VERSION}
+export OPENSHIFT=/var/lib/openshift
+export OPENSHIFT_VERSION=v1.2.1-5e723f6
 export OPENSHIFT_CLIENT=/opt/openshift-origin-client-tools-${OPENSHIFT_VERSION}
-export PATH=${OPENSHIFT}:${PATH}
+export PATH=${OPENSHIFT}:${OPENSHIFT_CLIENT}:${PATH}
 export KUBECONFIG=${OPENSHIFT}/openshift.local.config/master/admin.kubeconfig
 export CURL_CA_BUNDLE=${OPENSHIFT}/openshift.local.config/master/ca.crt
 EOF
@@ -151,10 +151,23 @@ EOF
 
 yum -y install docker-engine
 
-[[ -d "/etc/systemd/system/docker.service.d " ]] || mkdir -p /etc/systemd/system/docker.service.d && cat > /etc/systemd/system/docker.service.d/override.conf << 'EOF'
+[[ -f "/usr/lib/systemd/system/docker.service/docker.service" ]] || cat > /usr/lib/systemd/system/docker.service/docker.service << 'EOF'
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target docker.socket
+Requires=docker.socket
+
 [Service]
-ExecStart=
-ExecStart=/usr/bin/docker daemon --storage-driver=overlay --insecure-registry 172.30.0.0/16 -H fd://
+Type=notify
+ExecStart=/usr/bin/docker daemon -H fd://
+MountFlags=slave
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+
+[Install]
+WantedBy=multi-user.target
 EOF
  
     echo -e "# Initialising docker..." >> ${LOG}
@@ -174,36 +187,22 @@ install_openshift() {
     echo -e "# Installing openshift..." >> ${LOG}
     source /etc/profile.d/openshift.sh
     mkdir /opt/openshift-origin-server-${OPENSHIFT_VERSION}
-    [[ -f "/tmp/openshift-origin-server-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz" ]] || \
-    wget https://github.com/openshift/origin/releases/download/${OPENSHIFT_VERSION}/openshift-origin-server-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz -P /tmp
-    tar -zxvf /tmp/openshift-origin-server-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz -C /opt/openshift-origin-server-${OPENSHIFT_VERSION}/ --strip-components 1
-    cat > /etc/sysconfig/origin-master << 'EOF'
-# Origin server options
-OPTIONS="--loglevel=4 &> /opt/openshift.log"
-
-# Master configuration
-CONFIG_FILE=/opt/openshift-origin-server-v1.2.1/openshift.local.config/master/master-config.yaml
-
-# Proxy configuration
-NO_PROXY=master.oneincredible.com
-EOF
-    cat > /etc/systemd/system/openshift-origin.service << 'EOF'
+    [[ -f "/tmp/openshift-origin-server-${OPENSHIFT_VERSION}-linux-64bit.tar.gz" ]] || \
+    wget https://github.com/openshift/origin/releases/download/${OPENSHIFT_VERSION}/openshift-origin-server-${OPENSHIFT_VERSION}-linux-64bit.tar.gz -P /tmp
+    tar -zxvf /tmp/openshift-origin-server-${OPENSHIFT_VERSION}-linux-64bit.tar.gz -C /opt/openshift-origin-server-${OPENSHIFT_VERSION}/ --strip-components 1
+    cat >/usr/lib/systemd/system/openshift.service<< 'EOF'
 [Unit]
-Description=Origin Master Service
-After=docker.service
-Requires=docker.service
- 
+Description=OpenShift
+Requires=docker.service network.service
+After=network.service
+
 [Service]
-Type=notify
-EnvironmentFile=/etc/sysconfig/origin-master
-Environment=GOTRACEBACK=crash
-ExecStart=/opt/openshift-origin-server-v1.2.1/openshift start
-WorkingDirectory=/opt/openshift-origin-server-v1.2.1
-Restart=always
-RestartSec=10s
- 
+ExecStart=/usr/bin/openshift start --master-config=/var/lib/openshift/openshift.local.config/master/master-config.yaml --node-config=/var/lib/openshift/openshift.local.config/node-master.oneincredible.com/node-config.yaml
+WorkingDirectory=/var/lib/openshift/
+
 [Install]
 WantedBy=multi-user.target
+
 EOF
 }
 
@@ -236,7 +235,7 @@ patch_openshift() {
        apiVersion: v1
 -      kind: AllowAllPasswordIdentityProvider
 +      kind: HTPasswdPasswordIdentityProvider
-+      file: /opt/users.htpasswd
++      file: /etc/openshift/users.htpasswd
    masterCA: ca-bundle.crt
    masterPublicURL: https://139.162.173.55:8443
    masterURL: https://139.162.173.55:8443
@@ -261,7 +260,8 @@ config_openshift() {
     chmod +r ${OPENSHIFT}/openshift.local.config/master/openshift-registry.kubeconfig
     chmod +r ${OPENSHIFT}/openshift.local.config/master/openshift-router.kubeconfig
 
-    htpasswd -cb /opt/users.htpasswd admin admin
+    mkdir /etc/openshift
+    htpasswd -cb /etc/openshift/users.htpasswd admin admin
 
     systemctl daemon-reload
     systemctl enable openshift-origin
@@ -283,12 +283,12 @@ config_openshift() {
 	
     echo -e "# Creating docker registry..." >> ${LOG}
     mkdir /opt/openshift-registry
-    chcon -Rt svirt_sandbox_file_t /opt/openshift-registry
-    chcon -Rt svirt_sandbox_file_t /opt/openshift-origin-server-v1.2.1/openshift.local.volumes
+    chcon -Rt svirt_sandbox_file_t /var/lib/openshift-registry
+    chcon -Rt svirt_sandbox_file_t /var/lib/openshift-origin-server-v1.2.1/openshift.local.volumes
     chown root:root /opt/openshift-registry
-    chmod 777 /opt/openshift-registry 
+    chmod 755 /opt/openshift-registry 
     oadm policy add-scc-to-user privileged -z registry 
-    oadm registry --service-account=registry --mount-host=/opt/openshift-registry
+    oadm registry --service-account=registry --mount-host=/var/lib/openshift-registry
 	
     echo -e "# Creating router..." >> ${LOG}
     oadm policy add-scc-to-user hostnetwork -z router
@@ -306,8 +306,8 @@ install_openshift_client() {
     echo -e "# Installing openshift client..." >> ${LOG}
     mkdir /opt/openshift-origin-client-tools-${OPENSHIFT_VERSION}
     [[ -f "/tmp/openshift-origin-client-tools-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz" ]] || \
-    wget https://github.com/openshift/origin/releases/download/${OPENSHIFT_VERSION}/openshift-origin-client-tools-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz -P /tmp
-    tar -zxvf /tmp/openshift-origin-client-tools-${OPENSHIFT_VERSION}-5e723f6-linux-64bit.tar.gz -C /opt/openshift-origin-server-${OPENSHIFT_VERSION}/ 
+    wget https://github.com/openshift/origin/releases/download/${OPENSHIFT_VERSION}/openshift-origin-client-tools-${OPENSHIFT_VERSION}-linux-64bit.tar.gz -P /tmp
+    tar -zxvf /tmp/openshift-origin-client-tools-${OPENSHIFT_VERSION}-linux-64bit.tar.gz -C /var/lib/openshift-client-tools-${OPENSHIFT_VERSION}/ 
 }
 
 install_fabric8() {
