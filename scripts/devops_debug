@@ -45,11 +45,11 @@ install_docker
 read
 install_openshift
 read
+install_openshift_client
+read
 patch_openshift
 read
 config_openshift
-read
-install_openshift_client
 read
 install_fabric8
 installation_complete
