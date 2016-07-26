@@ -22,7 +22,8 @@
 
 source ./devops
 
-read
+# Call functions interactively
+
 config_network
 read
 disable_firewall
@@ -51,3 +52,14 @@ install_openshift_client
 read
 install_fabric8
 installation_complete
+
+# Debugging for output for issue tracking
+
+# Linux and kernel version
+uname -a
+
+# Docker version
+docker --version
+
+# Kubernetes version
+kubectl version
