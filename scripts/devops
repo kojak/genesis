@@ -303,9 +303,6 @@ config_openshift() {
     echo -e "# Creating router..." >> ${LOG}
     oadm policy add-scc-to-user hostnetwork -z router
     oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig --service-account=router --expose-metrics
-    
-    until oc get pods -l deploymentconfig=router,router=router  | grep -m 1 "Running"; do sleep 1 ; done
-
     oc annotate service router prometheus.io/port=9101
     oc annotate service router prometheus.io/scheme=http
     oc annotate service router prometheus.io/path=/metrics
