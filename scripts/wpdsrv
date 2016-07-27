@@ -39,19 +39,21 @@ function system_update {
 install_deps () {
     
     echo -e "# Installing dependencies..." >> ${LOG}
-    yum -y install httpd mariadb-server mariadb mlocate php php-mysql php-fpm patch rysnc htop dos2unix
+    yum -y install httpd mariadb-server mariadb mlocate php php-mysql php-fpm patch rysnc htop dos2unix vsftpd
 
     echo -e "# Starting services..." >> ${LOG}
     systemctl start httpd.service
     systemctl enable httpd.service
     systemctl start mariadb.service
     systemctl enable mariadb.service
+    systemctl enable vsftpd
+    systemctl start vsftpd
    
     echo -e "# Creating dadatbases..." >> ${LOG}
-    mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'ChangeMe'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'ChangeMe'; FLUSH PRIVILEGES; exit"
+    mysql -u root -Bse "CREATE DATABASE wordpress; CREATE USER wpadmin@localhost IDENTIFIED BY 'CHANGEME'; GRANT ALL PRIVILEGES ON wordpress.* TO wpadmin@localhost IDENTIFIED BY 'CHANGEME'; FLUSH PRIVILEGES; exit"
 
     echo -e "# Securing MySql..." >> ${LOG} 
-    echo -e "\n\nChangeMe\nChangeMe\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
+    echo -e "\n\nCHANGEME\nCHANGEME\n\n\nn\n\n " | mysql_secure_installation 2>/dev/null
 
     systemctl restart mariadb.service
     systemctl restart httpd.service
@@ -105,7 +107,7 @@ EOF
  
  /** MySQL database password */
 -define('DB_PASSWORD', 'password_here');
-+define('DB_PASSWORD', 'ChangeMe');
++define('DB_PASSWORD', 'CHANGEME');
  
  /** MySQL hostname */
  define('DB_HOST', 'localhost');
@@ -113,8 +115,71 @@ EOF
 EOF
     (cd / && patch -p0) < /tmp/wp-config.php.patch
     rm -f /tmp/wp-config.php.patch
+cat <<EOF >> /var/www/html/wp-config.php
+
+if(is_admin()) {
+add_filter('filesystem_method', create_function('$a', 'return "direct";' ));
+define( 'FS_CHMOD_DIR', 0751 );
+}
+
+define('FS_METHOD', 'ftpext');
+define('FTP_BASE', '/var/www/html/wordpress/');
+define('FTP_CONTENT_DIR', '/var/www/html/wordpress/wp-content/');
+define('FTP_PLUGIN_DIR ', '/var/www/html/wordpress/wp-content/plugins/');
+define('FTP_USER', 'wp-user');
+define('FTP_PASS', '');
+define('FTP_HOST', 'CHANGEME');
+
+EOF
     chown -R apache:apache /var/www/html/
     chown -R root:root /var/www/html/wp-admin
+    chown -R apache:wp-user /var/www/html/wordpress
+
+    useradd wp-user
+    usermod -s /sbin/nologin wp-user
+}
+
+
+patch_vsftpd () {
+
+echo -e "# Patching vsftp..." >> ${LOG}
+    cp -p /etc/vsftpd/vsftpd.conf /etc/vsftpd/vsftpd.conf.orig
+    cat > /tmp/vsftp.patch << 'EOF'
+--- /etc/vsftpd/vsftpd.conf.orig	2016-03-31 15:12:03.000000000 +0000
++++ /etc/vsftpd/vsftpd.conf	2016-07-27 12:36:58.980830479 +0000
+@@ -9,7 +9,7 @@
+ # capabilities.
+ #
+ # Allow anonymous FTP? (Beware - allowed by default if you comment this out).
+-anonymous_enable=YES
++anonymous_enable=NO
+ #
+ # Uncomment this to allow local users to log in.
+ # When SELinux is enforcing check for SE bool ftp_home_dir
+@@ -79,8 +79,8 @@
+ # predicted this attack and has always been safe, reporting the size of the
+ # raw file.
+ # ASCII mangling is a horrible feature of the protocol.
+-#ascii_upload_enable=YES
+-#ascii_download_enable=YES
++ascii_upload_enable=YES
++ascii_download_enable=YES
+ #
+ # You may fully customise the login banner string:
+ #ftpd_banner=Welcome to blah FTP service.
+@@ -97,7 +97,7 @@
+ # (Warning! chroot'ing can be very dangerous. If using chroot, make sure that
+ # the user does not have write access to the top level directory within the
+ # chroot)
+-#chroot_local_user=YES
++chroot_local_user=YES
+ #chroot_list_enable=YES
+ # (default follows)
+ #chroot_list_file=/etc/vsftpd/chroot_list
+EOF
+
+(cd / && patch -p0) < /tmp/vsftpd.patch
+rm -f /tmp/vsftpd.patch
 }
 
 post_install () {
@@ -128,4 +193,5 @@ post_install () {
 # Execute functions
 install_deps
 install_wordpress
+patch_vsftpd
 post_install
