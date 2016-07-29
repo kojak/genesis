@@ -52,15 +52,10 @@ read
 config_openshift
 read
 install_fabric8
-installation_complete
+read
+create_routes
+read
+create_registry
+read
+post_install
 
-# Debugging for output for issue tracking
-
-# Linux and kernel version
-uname -a
-
-# Docker version
-docker --version
-
-# Kubernetes version
-kubectl version

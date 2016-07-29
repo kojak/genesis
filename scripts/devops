@@ -181,6 +181,7 @@ EOF
     docker pull openshift/origin-deployer
     docker pull openshift/origin-docker-registry
     docker pull openshift/origin-haproxy-router
+    docker pull prom/haproxy-exporter:latest
 }
 
 install_openshift() {
@@ -265,9 +266,19 @@ EOF
 config_openshift() {
     source /etc/profile.d/openshift.sh
     echo -e "# Configuring openshift..." >> ${LOG}
-    chmod +r ${OPENSHIFT}/openshift.local.config/master/admin.kubeconfig
-    chmod +r ${OPENSHIFT}/openshift.local.config/master/openshift-registry.kubeconfig
-    chmod +r ${OPENSHIFT}/openshift.local.config/master/openshift-router.kubeconfig
+    mkdir -p /var/lib/openshift/openshift.local.manifests
+
+    pushd /var/lib/openshift
+
+    cat <<EOF >> /var/lib/openshift/openshift.local.config/node-139.162.173.55/node-config.yaml
+kubeletArguments:
+  "read-only-port":
+    - "10255"
+EOF
+    sed -i 's|^podManifestConfig: null|podManifestConfig:\\n  path: /var/lib/openshift/openshift.local.manifests\\n  fileCheckIntervalSeconds: 10|' /var/lib/openshift/openshift.loc
+    popd
+
+    restorecon -Rv /var/lib/openshift
 
     mkdir /etc/openshift
     htpasswd -cb /etc/openshift/users.htpasswd admin admin
@@ -278,36 +289,11 @@ config_openshift() {
 
     while true; do curl -k -s -f -o /dev/null --connect-timeout 1 https://localhost:8443/healthz/ready && break || sleep 1 ; done
 
-    echo -e "# Creating service accounts for registry and router..." >> ${LOG}
-    ${OPENSHIFT}oc login -u system:admin -n default
-    oc project default
-    echo '{"kind":"ServiceAccount","apiVersion":"v1","metadata":{"name":"registry"}}' | oc create -f -
-    echo '{"kind":"ServiceAccount","apiVersion":"v1","metadata":{"name":"router"}}' | oc create -f -
-    [[ -f "/tmp/jq-linux64" ]] || wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -P /tmp
-    chmod +x /tmp/jq-linux64
-    oc get scc privileged -o json | /tmp/jq-linux64 '.users |= .+ ["system:serviceaccount:default:registry"]' | oc replace scc -f -
-    oc get scc privileged -o json | /tmp/jq-linux64 '.users |= .+ ["system:serviceaccount:default:router"]' | oc replace scc -f -
 	
     echo -e "# Creating user roles..." >> ${LOG}
-    oadm policy add-cluster-role-to-user cluster-admin admin
+    oc adm policy add-cluster-role-to-user cluster-admin admin
+    oc adm policy add-cluster-role-to-group cluster-reader system:serviceaccounts
 	
-    echo -e "# Creating docker registry..." >> ${LOG}
-    mkdir ${OPENSHIFT}/openshift-registry
-    chcon -Rt svirt_sandbox_file_t ${OPENSHIFT}/openshift-registry
-    chcon -Rt svirt_sandbox_file_t ${OPENSHIFT}/openshift.local.volumes
-    chown root:root ${OPENSHIFT}/openshift-registry
-    chmod 755 ${OPENSHIFT}/openshift-registry 
-    oadm policy add-scc-to-user privileged -z registry 
-    oadm registry --service-account=registry --mount-host=/var/lib/openshift-registry
-	
-    echo -e "# Creating router..." >> ${LOG}
-    oadm policy add-scc-to-user hostnetwork -z router
-    oadm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig --service-account=router --expose-metrics
-    oc annotate service router prometheus.io/port=9101
-    oc annotate service router prometheus.io/scheme=http
-    oc annotate service router prometheus.io/path=/metrics
-    oc annotate service router prometheus.io/scrape=true
-    
     [[ -f "/tmp/openshift-ansible.git" ]] || cd /tmp && git clone https://github.com/openshift/openshift-ansible.git
     cd /tmp/openshift-ansible/roles/openshift_examples/files/examples/latest/
     for image in image-streams/image-streams-centos7.json; do cat $image | oc create -n openshift -f -; done
@@ -336,7 +322,24 @@ install_fabric8() {
     /opt/gofabric8/gofabric8 validate --namespace="default"
 }
 
-installation_complete() {
+create_routes () {
+    echo -e "# Creating routes..." >> ${LOG}
+    oc adm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig --service-account=router --expose-metrics
+    until oc get pods -l openshift.io/deployer-pod-for.name=router-1 | grep -m 1 "Running"; do sleep 1 ; done
+    oc annotate service router prometheus.io/port=9101
+    oc annotate service router prometheus.io/scheme=http
+    oc annotate service router prometheus.io/path=/metrics
+    oc annotate service router prometheus.io/scrape=true
+}
+
+create_registry () {
+    echo -e "# Creating the registry..." >> {LOG}
+    oc adm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
+}
+
+post_install() {
+    echo -e "# Validate installaiton..." >> ${LOG}
+    /opt/gofabric8/gofabric8 validate --namespace="default"
     echo -e "# Installation complete!!!" >> ${LOG}
 }
 
@@ -354,4 +357,6 @@ install_openshift_client
 patch_openshift
 config_openshift
 install_fabric8
-installation_complete
+create_routes
+create_registry
+post_install
