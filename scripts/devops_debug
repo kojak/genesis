@@ -43,6 +43,10 @@ add_hostname
 read
 install_docker
 read
+patch_docker
+read
+initialise_docker
+read
 install_openshift
 read
 install_openshift_client
@@ -50,6 +54,8 @@ read
 patch_openshift
 read
 config_openshift
+read
+initialise_openshift
 read
 create_users
 read

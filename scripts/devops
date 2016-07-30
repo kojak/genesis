@@ -150,27 +150,32 @@ gpgcheck=1
 gpgkey=https://yum.dockerproject.org/gpg
 EOF
 
-yum -y install docker-engine
+    yum -y install docker-engine
+}
 
-[[ -f "/usr/lib/systemd/system/docker.service" ]] || cat > /usr/lib/systemd/system/docker.service << 'EOF'
-[Unit]
-Description=Docker Application Container Engine
-Documentation=https://docs.docker.com
-After=network.target docker.socket
-Requires=docker.socket
-
-[Service]
-Type=notify
-ExecStart=/usr/bin/docker daemon -H fd://
-MountFlags=slave
-LimitNOFILE=1048576
-LimitNPROC=1048576
-LimitCORE=infinity
-
-[Install]
-WantedBy=multi-user.target
+patch_docker() {
+    echo -e "# Patching docker..." >> ${LOG}
+    [[ -f "/usr/lib/systemd/system/docker.service.orig" ]]; mv \
+    /usr/lib/systemd/system/docker.service.orig /usr/lib/systemd/system/docker.service
+    cp -p /usr/lib/systemd/system/docker.service /usr/lib/systemd/system/docker.service.orig
+    cat > /tmp/docker.patch << 'EOF'
+--- /usr/lib/systemd/system/docker.service    2016-07-30 16:07:35.251000000 -0400
++++ /usr/lib/systemd/system/docker.service    2016-07-30 16:08:47.267000000 -0400
+@@ -9,7 +9,7 @@
+ # exists and systemd currently does not support the cgroup feature set required
+ # for containers run by docker
+ ExecStart=/usr/bin/dockerd
+-ExecReload=/bin/kill -s HUP $MAINPID
++ExecReload=/bin/kill -s HUP $MAINPID --insecure-registry=172.0.0.0/8
+ # Having non-zero Limit*s causes performance problems due to accounting overhead
+ # in the kernel. We recommend using cgroups to do container-local accounting.
+ LimitNOFILE=infinity
 EOF
- 
+    (cd / && patch -p0) < /tmp/docker.patch
+    rm -f /tmp/docker.patch
+}
+    
+initialise_docker() { 
     echo -e "# Initialising docker..." >> ${LOG}
     systemctl daemon-reload
     systemctl enable docker
@@ -209,8 +214,8 @@ EOF
 }
 
 install_openshift_client() {
-    source /etc/profile.d/kojak.sh
     echo -e "# Installing openshift client..." >> ${LOG}
+    source /etc/profile.d/kojak.sh
     mkdir ${OPENSHIFT_CLIENT}
     [[ -f "/tmp/openshift-origin-server-v1.2.1-5e723f6-linux-64bit.tar.gz" ]] || \
     wget https://github.com/openshift/origin/releases/download/v1.2.1/openshift-origin-server-v1.2.1-5e723f6-linux-64bit.tar.gz -P /tmp
@@ -279,7 +284,11 @@ EOF
     restorecon -Rv /var/lib/openshift
     mkdir /etc/openshift
     htpasswd -cb /etc/openshift/users.htpasswd admin admin
+}
 
+initialise_openshift() {
+    echo -e "# Initialising openshift..." >> ${LOG}
+    source /etc/profile.d/kojak.sh
     systemctl daemon-reload
     systemctl enable openshift.service
     systemctl start openshift.service
@@ -307,7 +316,6 @@ create_users() {
 }
 
 install_fabric8() {
-    
     echo -e "# Downloading gofabric8..." >> ${LOG}
     source /etc/profile.d/kojak.sh
     cd /opt
@@ -358,10 +366,13 @@ setup_env
 create_resolve
 add_hostname
 install_docker
+patch_docker
+initialise_docker 
 install_openshift
 install_openshift_client
 patch_openshift
 config_openshift
+initialise_openshift
 create_users
 install_fabric8
 create_routes
