@@ -337,12 +337,14 @@ create_routes () {
 
 create_registry () {
     echo -e "# Creating the registry..." >> {LOG}
+    source /etc/profile.d/openshift.sh
     oc adm registry --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig
 }
 
 post_install() {
     echo -e "# Validate installaiton..." >> ${LOG}
-    /opt/gofabric8/gofabric8 validate --namespace="default"
+    source /etc/profile.d/openshift.sh
+    gofabric8 validate --namespace="default"
     echo -e "# Installation complete!!!" >> ${LOG}
 }
 
