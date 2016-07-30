@@ -344,7 +344,7 @@ create_registry () {
 post_install() {
     echo -e "# Validate installaiton..." >> ${LOG}
     source /etc/profile.d/openshift.sh
-    gofabric8 validate --namespace="default"
+    /opt/gofabric8/gofabric8 validate --namespace="default"
     echo -e "# Installation complete!!!" >> ${LOG}
 }
 
