@@ -151,7 +151,7 @@ EOF
 
 yum -y install docker-engine
 
-[[ -f "/usr/lib/systemd/system/docker.service/docker.service" ]] || cat > /usr/lib/systemd/system/docker.service/docker.service << 'EOF'
+[[ -f "/usr/lib/systemd/system/docker.service" ]] || cat > /usr/lib/systemd/system/docker.service << 'EOF'
 [Unit]
 Description=Docker Application Container Engine
 Documentation=https://docs.docker.com
