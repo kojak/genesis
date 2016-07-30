@@ -302,9 +302,9 @@ EOF
 }
 
 install_fabric8() {
-    source /etc/profile.d/openshift.sh
     
     echo -e "# Downloading gofabric8..." >> ${LOG}
+    source /etc/profile.d/openshift.sh
     cd /opt
     mkdir gofabric8
     [[ -f "/tmp/gofabric8-0.4.31-linux-amd64.tar.gz" ]] || \
@@ -323,7 +323,10 @@ install_fabric8() {
 }
 
 create_routes () {
+
     echo -e "# Creating routes..." >> ${LOG}
+    source /etc/profile.d/openshift.sh
+    oadm policy add-scc-to-user hostnetwork -z router
     oc adm router --create --credentials=/var/lib/openshift/openshift.local.config/master/openshift-router.kubeconfig --service-account=router --expose-metrics
     until oc get pods -l openshift.io/deployer-pod-for.name=router-1 | grep -m 1 "Running"; do sleep 1 ; done
     oc annotate service router prometheus.io/port=9101
