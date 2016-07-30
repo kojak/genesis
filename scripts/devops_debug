@@ -51,6 +51,8 @@ patch_openshift
 read
 config_openshift
 read
+create_users
+read
 install_fabric8
 read
 create_routes
