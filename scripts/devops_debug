@@ -24,7 +24,6 @@ source ./devops
 
 # Call functions interactively
 
-read
 config_network
 read
 disable_firewall
@@ -47,9 +46,9 @@ patch_docker
 read
 initialise_docker
 read
-install_openshift
-read
 install_openshift_client
+read
+install_openshift
 read
 patch_openshift
 read
